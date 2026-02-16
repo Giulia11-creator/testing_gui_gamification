@@ -9,14 +9,15 @@ function TodoList() {
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState("");
   const [showPopup, setShowPopup] = useState(false);
-  const [popUpErrore, setpopUpErrore] = useState(false);
-  const [messaggioErrore, setMessaggioErrore] = useState("");
-  const [bugData, setbugData] = useState(false);
-  const [bugColonnaVuota, setbugColonnaVuota] = useState(false);
-  const [bugTroppiTask, setbugTroppiTask] = useState(false);
+  const [popUpError, setpopUpError] = useState(false);
+  const [ErrorMessage, setErrorMessage] = useState("");
+  const [bugWrongDate, setbugWrongDate] = useState(false);
+  const [bugEmptyColoumn, setbugEmptyColoumn] = useState(false);
+  const [bugTooManyTasks, setbugTooManyTasks] = useState(false);
+  const [bugDuplicateTodo, setbugDuplicateTodo] = useState(false);
   const [score, setscore] = useState(0);
   const [showModal, setshowModal] = useState(false);
-  const [showFaccine, setShowFaccine] = useState(false);
+  const [ShowEmoji, setShowEmoji] = useState(false);
   const navigate = useNavigate();
   const { user } = UserAuth();
   const DURATION = 20 * 60;
@@ -58,51 +59,52 @@ function TodoList() {
 
   const addTodo = () => {
     if (!text.trim()) return;
-    const nuovoTodo = { text: text, dueDate: new Date() };
+    const newTodo = { text: text, dueDate: new Date() };
     if ((todos.length + 1) % 3 === 0 && todos.length > 0) {
-      const giorniNelPassato = Math.floor(Math.random() * 30) + 1;
-      const dataPassata = new Date();
-      dataPassata.setDate(dataPassata.getDate() - giorniNelPassato);
-      nuovoTodo.dueDate = dataPassata;
+      const DaysInThePast = Math.floor(Math.random() * 30) + 1;
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - DaysInThePast);
+      newTodo.dueDate = pastDate;
     }
-    setTodos([...todos, nuovoTodo]);
+    setTodos([...todos, newTodo]);
     setText("");
     setShowPopup(false);
   };
 
   const removeAll = () => {
-    if (todos.length === 0 && !bugColonnaVuota) {
-      setpopUpErrore(true);
-      setMessaggioErrore("🧹 Ben fatto! Hai individuato un bug di validazione UI (interfaccia utente). Il pulsante “Elimina tutto” resta cliccabile anche quando non ci sono task, permettendo un’azione senza senso. Si tratta di un errore di validazione dello stato: l’app non controlla che la lista sia vuota prima di abilitare l’azione. Questo tipo di bug compromette la coerenza dell’interfaccia e può confondere l’utente.");
-      setbugColonnaVuota(true);
+    if (todos.length === 0 && !bugEmptyColoumn) {
+      setpopUpError(true);
+      setErrorMessage("🧹 Ben fatto! Hai individuato un bug di validazione UI (interfaccia utente). Il pulsante “Elimina tutto” resta cliccabile anche quando non ci sono task, permettendo un’azione senza senso. Si tratta di un errore di validazione dello stato: l’app non controlla che la lista sia vuota prima di abilitare l’azione. Questo tipo di bug compromette la coerenza dell’interfaccia e può confondere l’utente.");
+      setbugEmptyColoumn(true);
     } else {
       setTodos([]);
     }
   };
 
-  const resettaErrore = () => {
-    setpopUpErrore(false);
-    setMessaggioErrore("");
-    if (bugTroppiTask) {
+  const resetError = () => {
+    setpopUpError(false);
+    setErrorMessage("");
+    if (bugTooManyTasks) {
       setTodos([]);
-      setShowFaccine(false);
+      setShowEmoji(false);
     }
   };
 
-  const gestisciClickData = (todo) => {
-    const oggi = new Date();
-    oggi.setHours(0, 0, 0, 0);
-    const dataTodo = new Date(todo.dueDate);
-    dataTodo.setHours(0, 0, 0, 0);
+  const HandleClickDate = (todo) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dateTodo = new Date(todo.dueDate);
+    dateTodo.setHours(0, 0, 0, 0);
 
-    if (dataTodo < oggi && !bugData) {
-      setMessaggioErrore("🎉 Congratulazioni! Hai scoperto un bug logico. Ogni volta che aggiungi tre task, il terzo viene salvato con una data sbagliata. In pratica, l’applicazione sovrascrive la data in modo errato invece di usare quella scelta dall’utente. Questo è un esempio tipico di bug logico (off-by-one), in cui la logica del programma produce un comportamento non coerente con l’intenzione.");
-      setpopUpErrore(true);
-      setbugData(true);
-    } else {
-      setMessaggioErrore("Questo bug è già stato trovato!!! Cerca ancora");
-      setpopUpErrore(true);
+    if (dateTodo < today && !bugWrongDate) {
+      setErrorMessage("🎉 Congratulazioni! Hai scoperto un bug logico. Ogni volta che aggiungi tre task, il terzo viene salvato con una data sbagliata. In pratica, l’applicazione sovrascrive la data in modo errato invece di usare quella scelta dall’utente. Questo è un esempio tipico di bug logico (off-by-one), in cui la logica del programma produce un comportamento non coerente con l’intenzione.");
+      setpopUpError(true);
+      setbugWrongDate(true);
+    } else if(bugWrongDate) {
+      setErrorMessage("Questo bug è già stato trovato!!! Cerca ancora");
+      setpopUpError(true);
     }
+    return;
   };
 
   const removeTodo = (index) => {
@@ -111,11 +113,12 @@ function TodoList() {
 
   useEffect(() => {
     let currentScore = 0;
-    if (bugColonnaVuota) currentScore += 33;
-    if (bugData) currentScore += 33;
-    if (bugTroppiTask) currentScore += 34;
+    if (bugEmptyColoumn) currentScore += 25;
+    if (bugWrongDate) currentScore += 25;
+    if (bugTooManyTasks) currentScore += 25;
+    if (bugDuplicateTodo) currentScore += 25;
     setscore(currentScore);
-  }, [bugColonnaVuota, bugData, bugTroppiTask]);
+  }, [bugEmptyColoumn, bugWrongDate, bugTooManyTasks, bugDuplicateTodo]);
 
   useEffect(() => {
     if (score === 100) {
@@ -128,22 +131,41 @@ function TodoList() {
       if (user) {
         await addUser("Todo", user.uid, { score, email: user.email, time: formatTime() });
       }
-    })();
+    })(); 
   }, [score, user, formatTime]);
 
   useEffect(() => {
     if (todos.length >= 7) {
-      if (!bugTroppiTask) {
-        setMessaggioErrore("🌀 Ottimo lavoro! Hai trovato un bug prestazionale. Dopo aver aggiunto molti task, l’app inizia a rallentare, bloccare o duplicare contenuti. Questo tipo di errore nasce da una gestione inefficiente dello stato o del rendering, dove l’interfaccia prova a mostrare troppi elementi contemporaneamente senza ottimizzazioni (come paginazione o virtualizzazione). È un bug di prestazioni e stabilità: non altera i dati in sé, ma degrada il comportamento dell’app quando viene stressata oltre i limiti previsti.");
-        setbugTroppiTask(true);
+      if (!bugTooManyTasks) {
+        setErrorMessage("🌀 Ottimo lavoro! Hai trovato un bug prestazionale. Dopo aver aggiunto molti task, l’app inizia a rallentare, bloccare o duplicare contenuti. Questo tipo di errore nasce da una gestione inefficiente dello stato o del rendering, dove l’interfaccia prova a mostrare troppi elementi contemporaneamente senza ottimizzazioni (come paginazione o virtualizzazione). È un bug di prestazioni e stabilità: non altera i dati in sé, ma degrada il comportamento dell’app quando viene stressata oltre i limiti previsti.");
+        setbugTooManyTasks(true);
       } else {
-        setMessaggioErrore("Hai già trovato questo bug !!!");
+        setErrorMessage("Hai già trovato questo bug !!!");
       }
-      setpopUpErrore(true);
-      setShowFaccine(true);
+      setpopUpError(true);
+      setShowEmoji(true);
       setTodos([]);
     }
-  }, [todos, bugTroppiTask]);
+  }, [todos, bugTooManyTasks]);
+
+   
+const CheckDuplicate = (todo) => {
+  const isDup = todos.some(
+    (t) => t !== todo && t.text.trim().toLowerCase() === todo.text.trim().toLowerCase()
+  );
+
+  if (isDup) {
+    if (!bugDuplicateTodo) {
+      setErrorMessage("🌀 Ottimo lavoro! Hai trovato un bug: l'app permette di inserire duplicati.");
+      setbugDuplicateTodo(true);
+    } else {
+      setErrorMessage("Hai già trovato questo bug !!!");
+    }
+    setpopUpError(true);
+    return;
+  }
+
+};
 
   return (
     <div className="bg-slate-50 overflow-hidden min-h-screen flex flex-col">
@@ -236,17 +258,17 @@ function TodoList() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Colonna sinistra (Popup Errore) */}
             <div className="flex items-start justify-center">
-              {popUpErrore && (
+              {popUpError && (
                 <div className="relative w-full max-w-sm bg-red-50 border border-red-300 text-red-800 rounded-xl shadow-md p-4">
                   <div className="flex items-start gap-3">
                     <span className="text-xl">⚠️</span>
                     <div>
                       <strong className="block mb-1">Errore</strong>
-                      <p className="text-sm leading-5">{messaggioErrore}</p>
+                      <p className="text-sm leading-5">{ErrorMessage}</p>
                     </div>
                   </div>
                   <button
-                    onClick={resettaErrore}
+                    onClick={resetError}
                     className="absolute top-2 right-2 text-red-700 hover:text-red-900 font-bold"
                     aria-label="Chiudi avviso"
                   >
@@ -272,11 +294,11 @@ function TodoList() {
                       key={index}
                       className="group bg-slate-100/80 hover:bg-slate-100 transition-colors p-3 rounded-xl flex items-center gap-3 shadow-sm"
                     >
-                      <span className="flex-1 text-slate-800">{todo.text}</span>
+                      <span className="flex-1 text-slate-800"    onClick={() => CheckDuplicate(todo)}>{todo.text}</span>
 
                       <button
                         className="text-xs text-slate-500 hover:text-purple-700 bg-white border border-slate-200 rounded-lg px-2 py-1 transition"
-                        onClick={() => gestisciClickData(todo)}
+                        onClick={() => HandleClickDate(todo)}
                         title="Data scadenza"
                       >
                         {todo.dueDate ? new Date(todo.dueDate).toLocaleDateString() : "Data"}
@@ -292,7 +314,7 @@ function TodoList() {
                     </div>
                   ))
                 ) : (
-                  showFaccine && (
+                  ShowEmoji && (
                     <div className="text-2xl mt-2 leading-6 break-words">
                       {"😱".repeat(300)}
                     </div>
@@ -304,14 +326,14 @@ function TodoList() {
                 <button
                   className="bg-green-500 text-white px-4 py-2.5 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-300 font-semibold transition disabled:opacity-50"
                   onClick={() => setShowPopup(true)}
-                  disabled={popUpErrore}
+                  disabled={popUpError}
                 >
                   Aggiungi
                 </button>
                 <button
                   className="bg-red-500 text-white px-4 py-2.5 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-4 focus:ring-red-300 font-semibold transition disabled:opacity-50"
                   onClick={removeAll}
-                  disabled={popUpErrore}
+                  disabled={popUpError}
                 >
                   Elimina tutto
                 </button>

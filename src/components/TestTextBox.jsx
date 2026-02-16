@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from '../firebase';
 import { addUser } from "./FirestoreFunction.js";
 import { UserAuth } from "../context/AuthContext";
 import { FaUserCircle } from 'react-icons/fa';
@@ -14,12 +12,15 @@ const TestTextBox = () => {
     });
     const [finishedTime, setFinishedTimer] = useState(false);
     const [input, setInput] = useState('');
-    const [risultato, setRisultato] = useState(null);
-    const [errore, setErrore] = useState(false);
-    const [messaggioErrore, setMessaggioErrore] = useState('');
-    const [bug1Trovato, setBug1Trovato] = useState(false);
-    const [bug2Trovato, setBug2Trovato] = useState(false);
-    const [bug3Trovato, setBug3Trovato] = useState(false);
+    const [result, setresult] = useState(null);
+    const [error, seterror] = useState(false);
+    const [errorMessage, seterrorMessage] = useState('');
+    const [bugLetter, setbugLetter] = useState(false);
+    const [bugSymbols, setbugSymbols] = useState(false);
+    const [bugEmpty, setbugEmpty] = useState(false);
+    const [bugDecimal, setBugDecimal] = useState(false);
+    const [bugToInfinity, setBugToInfinity] = useState(false);
+    const [hadComa, setHadComa] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const navigate = useNavigate();
     const { user } = UserAuth();
@@ -52,50 +53,119 @@ const TestTextBox = () => {
     }, [elapsed]);
 
 
-    const calcola = (e) => {
+    const calculate = (e) => {
         e.preventDefault();
+
         try {
-            if (/[a-zA-Z]/.test(input) && !bug1Trovato) {
-                setBug1Trovato(true);
-                setErrore(true);
-                setMessaggioErrore("🔤 Congratulazioni! Hai trovato un bug di validazione logica. La calcolatrice permette di inserire lettere (come a, b, x) nella casella di testo, anche se dovrebbe accettare solo numeri e operatori aritmetici. Questo tipo di errore deriva da una mancanza di controllo sull’input: il programma non verifica che i caratteri digitati siano validi prima di provare a eseguire il calcolo. È un bug di validazione logica, perché il flusso logico dell’app non distingue tra input numerici e alfabetici, portando a errori di esecuzione o risultati non definiti.");
-            } else if (/[#?&$£!]/.test(input) && !bug2Trovato) {
-                setBug2Trovato(true);
-                setErrore(true);
-                setMessaggioErrore("❌ Ottimo lavoro! Hai individuato un bug di validazione sintattica. L’applicazione permette di inserire simboli speciali come ?, @, # o !, che non fanno parte delle operazioni matematiche. Questo bug è di tipo sintattico, perché riguarda la forma dell’input: la calcolatrice non riconosce che questi simboli non sono ammessi e li passa comunque al motore di calcolo. Il risultato può essere un errore di parsing o un crash del componente di valutazione.");
-            } else if (input === "" && !bug3Trovato) {
-                setBug3Trovato(true);
-                setErrore(true);
-                setMessaggioErrore("⚠️ Ben fatto! Hai scoperto un bug di validazione dell’input utente. La calcolatrice consente di premere “Calcola” anche se la casella di testo è vuota. Questo è un bug di validazione funzionale, perché l’app non controlla che l’utente abbia inserito qualcosa prima di procedere. Il comportamento corretto sarebbe bloccare il calcolo e mostrare un messaggio d’errore del tipo “Inserisci un’espressione valida prima di calcolare”. Si tratta di un problema comune nelle interfacce non protette da controlli preliminari (guard clauses)");
-            } else if (/[a-zA-Z]/.test(input) && bug1Trovato) {
-                setErrore(true);
-                setMessaggioErrore("Hai già trovato il bug delle lettere!");
-            } else if (/[#?&$£!]/.test(input) && bug2Trovato) {
-                setErrore(true);
-                setMessaggioErrore("Hai già trovato il bug del simbolo non accettabile!");
-            } else if (input === "" && bug3Trovato) {
-                setErrore(true);
-                setMessaggioErrore("Hai già trovato il bug dell'input vuoto!");
-            } else {
-                setErrore(false);
-                setMessaggioErrore('');
-                const risultato = eval(input);
-                setRisultato(risultato);
+            const expr = input; // per chiarezza
+
+            // BUG virgola: tronca la parte decimale (es: 9,6 -> 9)
+            const hasCommaNow = expr.includes(",");
+            const cleanedInput = hasCommaNow ? expr.replace(/,\d+/g, "") : expr;
+
+            // salvo nello state per il click sul result (checkErrorComa)
+            setHadComa(hasCommaNow);
+
+            // --- BUG 1: lettere ---
+            if (/[a-zA-Z]/.test(expr)) {
+                setresult(null);
+
+                if (!bugLetter
+
+                ) {
+                    setbugLetter
+                        (true);
+                    seterror(true);
+                    seterrorMessage("🔤 Congratulazioni! Hai trovato il bug delle lettere...");
+                } else {
+                    seterror(true);
+                    seterrorMessage("Hai già trovato il bug delle lettere!");
+                }
+                return;
             }
+
+            // --- BUG 2: simboli speciali ---
+            if (/[#?&$£!]/.test(expr)) {
+                setresult(null);
+
+                if (!bugSymbols) {
+                    setbugSymbols(true);
+                    seterror(true);
+                    seterrorMessage("❌ Ottimo lavoro! Hai individuato il bug dei simboli...");
+                } else {
+                    seterror(true);
+                    seterrorMessage("Hai già trovato il bug del simbolo non accettabile!");
+                }
+                return;
+            }
+
+            // --- BUG 3: input vuoto ---
+            if (expr === "") {
+                setresult(null);
+
+                if (!bugEmpty) {
+                    setbugEmpty(true);
+                    seterror(true);
+                    seterrorMessage("⚠️ Ben fatto! Hai scoperto il bug dell'input vuoto...");
+                } else {
+                    seterror(true);
+                    seterrorMessage("Hai già trovato il bug dell'input vuoto!");
+                }
+                return;
+            }
+
+            // --- calcolo (una sola volta) --- Tanto se il calcolo è nel giusto formato non ci sono modifiche
+            const res = eval(cleanedInput);
+
+            // --- BUG Infinity / NaN ---
+            if (!Number.isFinite(res)) {
+                setresult(null);
+
+                if (!bugToInfinity) {
+                    setBugToInfinity(true);
+                    seterror(true);
+                    seterrorMessage("♾️ Bug trovato! Il calcolo produce un valore infinito/non valido.");
+                } else {
+                    seterror(true);
+                    seterrorMessage("Hai già trovato il bug di Infinity/NaN!");
+                }
+                return;
+            }
+
+            // tutto ok
+            seterror(false);
+            seterrorMessage("");
+            setresult(res);
         } catch (error) {
-            setErrore(true);
-            setMessaggioErrore(error.message);
-            setRisultato(null);
+            seterror(true);
+            seterrorMessage(error?.message || "error sconosciuto");
+            setresult(null);
         }
+    };
+
+    function checkErrorComa() {
+        if (hadComa && !bugDecimal) {
+            setBugDecimal(true);
+            seterror(true);
+            seterrorMessage("⚠️ Ben fatto! Hai scoperto un bug di validazione dell’input utente. La calculatetrice accetta anche i numeri scritti con la virgola, ma ne sbaglia il result");
+
+        }
+        else if (hadComa && bugDecimal) {
+            seterror(true);
+            seterrorMessage("Hai già trovato il bug della virgola");
+        }
+
     };
 
     useEffect(() => {
         let currentScore = 0;
-        if (bug1Trovato) currentScore += 33;
-        if (bug2Trovato) currentScore += 33;
-        if (bug3Trovato) currentScore += 34;
+        if (bugLetter) currentScore += 20;
+        if (bugSymbols) currentScore += 20;
+        if (bugEmpty) currentScore += 20;
+        if (bugDecimal) currentScore += 20;
+        if (bugToInfinity) currentScore += 20;
         setScore(currentScore);
-    }, [bug1Trovato, bug2Trovato, bug3Trovato]);
+    }, [bugLetter, bugSymbols, bugEmpty, bugDecimal, bugToInfinity]);
 
     useEffect(() => {
         (async () => {
@@ -111,10 +181,12 @@ const TestTextBox = () => {
         }
     }, [score, user]);
 
-    const resettaErrore = () => {
-        setErrore(false);
-        setMessaggioErrore('');
+    const resettaerror = () => {
+        seterror(false);
+        seterrorMessage('');
         setInput('');
+        setresult('');
+        setHadComa(false);
     };
 
     const closeModal = () => {
@@ -195,12 +267,12 @@ const TestTextBox = () => {
             <div className="flex-1">
                 <div className="max-w-[1200px] mx-auto px-5 py-8">
                     <div className="mx-auto w-full max-w-md">
-                        {/* Card Calcolatrice */}
+                        {/* Card calculatetrice */}
                         <div className="bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.06)] overflow-hidden">
                             {/* Header viola */}
                             <div className="bg-gradient-to-r from-purple-700 to-fuchsia-600 py-4 px-6">
                                 <h2 className="text-center text-xl font-semibold text-white tracking-tight">
-                                    Mini Calcolatrice
+                                    Mini calculatetrice
                                 </h2>
                             </div>
 
@@ -211,62 +283,62 @@ const TestTextBox = () => {
                                 </div>
 
                                 {/* Form */}
-                                <form onSubmit={calcola} className="space-y-3">
+                                <form onSubmit={calculate} className="space-y-3">
                                     <input
                                         type="text"
                                         value={input}
                                         onChange={(e) => {
                                             setInput(e.target.value);
-                                            setRisultato(null);
+                                            setresult(null);
                                         }}
                                         placeholder="Scrivi un'espressione (es: 3+5)"
                                         className={`w-full px-4 py-2.5 rounded-lg border bg-white placeholder-slate-400
                     focus:outline-none focus:ring-4 focus:ring-purple-200 transition
-                    ${errore ? 'border-red-400 bg-slate-50 text-slate-500 cursor-not-allowed' : 'border-slate-300'}
+                    ${error ? 'border-red-400 bg-slate-50 text-slate-500 cursor-not-allowed' : 'border-slate-300'}
                   `}
-                                        disabled={errore}
-                                        aria-invalid={!!errore}
+                                        disabled={error}
+                                        aria-invalid={!!error}
                                     />
 
                                     <button
                                         type="submit"
                                         className={`w-full py-2.5 rounded-lg text-white font-semibold transition
                     focus:outline-none focus:ring-4
-                    ${errore
+                    ${error
                                                 ? 'bg-slate-400 cursor-not-allowed focus:ring-slate-300'
                                                 : 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-300'
                                             }`}
-                                        disabled={errore}
+                                        disabled={error}
                                     >
-                                        Calcola
+                                        calculate
                                     </button>
                                 </form>
 
                                 {/* Messaggi */}
-                                {errore && (
+                                {error && (
                                     <div
                                         className="mt-5 p-4 bg-purple-50 border border-purple-300 text-purple-800 rounded-xl relative"
                                         role="alert"
                                     >
-                                        <strong className="font-semibold">Errore: </strong>
-                                        {messaggioErrore}
+                                        <strong className="font-semibold">error: </strong>
+                                        {errorMessage}
                                         <button
-                                            onClick={resettaErrore}
+                                            onClick={resettaerror}
                                             className="absolute top-2.5 right-3 text-purple-700 hover:text-red-700 font-bold"
-                                            aria-label="Chiudi errore"
+                                            aria-label="Chiudi error"
                                         >
                                             &times;
                                         </button>
                                     </div>
                                 )}
 
-                                {risultato !== null && !errore && (
+                                {result !== null && !error && (
                                     <div
                                         className="mt-5 p-4 bg-emerald-50 border border-emerald-300 text-emerald-700 rounded-xl"
                                         aria-live="polite"
                                     >
-                                        <p className="text-lg font-semibold">
-                                            Risultato: <span className="tabular-nums">{risultato}</span>
+                                        <p className="text-lg font-semibold" onClick={checkErrorComa}>
+                                            result: <span className="tabular-nums">{result}</span>
                                         </p>
                                     </div>
                                 )}

@@ -26,7 +26,13 @@ export async function addUser(collectionName, uid, options = {}) {
         {
           percentage: Number(options.score ?? 0),
           lastUpdate: serverTimestamp(),
-          time: options.time ?? ""
+          time: options.time ?? "",
+          Totalclicks: Number(options.Totalclicks ?? 0),
+          bugLetter: !!options.bugLetter,
+          bugDecimal: !!options.bugDecimal,
+          bugEmpty: !!options.bugEmpty,
+          bugToInfinity: !!options.bugToInfinity,
+          bugSymbols: !!options.bugSymbols,
         },
         { merge: true }
       );
@@ -37,6 +43,12 @@ export async function addUser(collectionName, uid, options = {}) {
         nick: options.email ?? "",
         percentage: Number(options.score ?? 0),
         time: options.time ?? "",
+        Totalclicks: Number(options.Totalclicks ?? 0),
+        bugLetter: !!options.bugLetter,
+        bugDecimal: !!options.bugDecimal,
+        bugEmpty: !!options.bugEmpty,
+        bugToInfinity: !!options.bugToInfinity,
+        bugSymbols: !!options.bugSymbols,
         createdAt: serverTimestamp(),
         lastUpdate: serverTimestamp(),
       });

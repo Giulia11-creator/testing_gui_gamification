@@ -25,6 +25,10 @@ const TestTextBox = () => {
     const navigate = useNavigate();
     const { user } = UserAuth();
     const [score, setScore] = useState(0);
+    const [clicks, setClicks] = useState(() => {
+        const saved = sessionStorage.getItem("clicks");
+        return saved ? JSON.parse(saved) : 0;
+    });
 
     useEffect(() => {
         if (seconds <= 0) {
@@ -55,7 +59,7 @@ const TestTextBox = () => {
 
     const calculate = (e) => {
         e.preventDefault();
-
+        incrementClicks();
         try {
             const expr = input; // per chiarezza
 
@@ -69,12 +73,8 @@ const TestTextBox = () => {
             // --- BUG 1: lettere ---
             if (/[a-zA-Z]/.test(expr)) {
                 setresult(null);
-
-                if (!bugLetter
-
-                ) {
-                    setbugLetter
-                        (true);
+                if (!bugLetter) {
+                    setbugLetter(true);
                     seterror(true);
                     seterrorMessage("🔤 Congratulazioni! Hai trovato il bug delle lettere...");
                 } else {
@@ -113,9 +113,9 @@ const TestTextBox = () => {
                 }
                 return;
             }
+            const preparedInput = convertPowers(cleanedInput);
+            const res = eval(preparedInput);
 
-            // --- calcolo (una sola volta) --- Tanto se il calcolo è nel giusto formato non ci sono modifiche
-            const res = eval(cleanedInput);
 
             // --- BUG Infinity / NaN ---
             if (!Number.isFinite(res)) {
@@ -132,6 +132,7 @@ const TestTextBox = () => {
                 return;
             }
 
+
             // tutto ok
             seterror(false);
             seterrorMessage("");
@@ -144,6 +145,7 @@ const TestTextBox = () => {
     };
 
     function checkErrorComa() {
+        incrementClicks();
         if (hadComa && !bugDecimal) {
             setBugDecimal(true);
             seterror(true);
@@ -170,10 +172,10 @@ const TestTextBox = () => {
     useEffect(() => {
         (async () => {
             if (user) {
-                await addUser("TextBox", user.uid, { score, email: user.email, time: formatTime() });
+                await addUser("TextBox", user.uid, { score, email: user.email, time: formatTime(), Totalclicks: clicks, bugLetter: bugLetter, bugDecimal: bugDecimal, bugEmpty: bugEmpty, bugToInfinity: bugToInfinity, bugSymbols: bugSymbols });
             }
         })();
-    }, [score, user, formatTime, seconds]);
+    }, [score, user, formatTime, seconds, clicks, bugDecimal, bugEmpty, bugLetter, bugSymbols, bugToInfinity]);
 
     useEffect(() => {
         if (score === 100 && user) {
@@ -194,6 +196,21 @@ const TestTextBox = () => {
         navigate("/account");
     };
 
+    function convertPowers(str) {
+        // sostituisce "numero ^ numero" (con eventuali spazi) con "numero ** numero"
+        // Esempi: "2^3" -> "2**3", "2 ^ 3" -> "2**3", "12^10" -> "12**10"
+        return str.replace(/(\d+(?:\.\d+)?)\s*\^\s*(\d+(?:\.\d+)?)/g, "$1**$2");
+    }
+
+    function incrementClicks() {
+        setClicks((prev) => {
+            const next = prev + 1;
+            sessionStorage.setItem("clicks", JSON.stringify(next));
+            return next; // importante restituire il nuovo valore
+        });
+    }
+
+
     return (
         <div className="bg-slate-50 min-h-screen flex flex-col">
             {/* Topbar */}
@@ -203,7 +220,7 @@ const TestTextBox = () => {
                     <span className="text-lg md:text-xl text-slate-600">
 
                         <span className="text-lg md:text-xl text-slate-600">
-                            <span className="text-purple-800 font-semibold">
+                            <span className="text-purple-800 font-semibold" onClick={incrementClicks}>
                                 Ciao, {user?.email?.split('@')[0] || 'utente'}
                             </span>
 
@@ -222,8 +239,8 @@ const TestTextBox = () => {
                                 aria-live="polite"
                                 title="Tempo rimanente"
                             >
-                                <span className="hidden sm:inline text-xs uppercase">Timer</span>
-                                <span className="font-mono text-base">
+                                <span className="hidden sm:inline text-xs uppercase" onClick={incrementClicks}>Timer</span>
+                                <span className="font-mono text-base" onClick={incrementClicks}>
                                     {minutes}:{remainingSeconds.toString().padStart(2, "0")}
                                 </span>
 
@@ -247,8 +264,8 @@ const TestTextBox = () => {
                             aria-live="polite"
                             title="Punteggio"
                         >
-                            <span className="text-sm">Punteggio</span>
-                            <span className="text-base tabular-nums">{score}</span>
+                            <span className="text-sm" onClick={incrementClicks}>Punteggio</span>
+                            <span className="text-base tabular-nums" onClick={incrementClicks}>{score}</span>
                         </div>
 
                         <button
@@ -271,15 +288,15 @@ const TestTextBox = () => {
                         <div className="bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.06)] overflow-hidden">
                             {/* Header viola */}
                             <div className="bg-gradient-to-r from-purple-700 to-fuchsia-600 py-4 px-6">
-                                <h2 className="text-center text-xl font-semibold text-white tracking-tight">
-                                    Mini calculatetrice
+                                <h2 className="text-center text-xl font-semibold text-white tracking-tight" onClick={incrementClicks}>
+                                    Mini calcolatrice
                                 </h2>
                             </div>
 
                             <div className="px-6 py-5">
                                 {/* Barra “bug”/progress emojii */}
-                                <div className="mb-5 text-center text-2xl">
-                                    {'🪲'.repeat(Math.floor(score / 30))}
+                                <div className="mb-5 text-center text-2xl" onClick={incrementClicks}>
+                                    {'🪲'.repeat(Math.floor(score / 20))}
                                 </div>
 
                                 {/* Form */}
@@ -310,7 +327,7 @@ const TestTextBox = () => {
                                             }`}
                                         disabled={error}
                                     >
-                                        calculate
+                                        calcola
                                     </button>
                                 </form>
 
@@ -338,7 +355,7 @@ const TestTextBox = () => {
                                         aria-live="polite"
                                     >
                                         <p className="text-lg font-semibold" onClick={checkErrorComa}>
-                                            result: <span className="tabular-nums">{result}</span>
+                                            risultato: <span className="tabular-nums">{result}</span>
                                         </p>
                                     </div>
                                 )}

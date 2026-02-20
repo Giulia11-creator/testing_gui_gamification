@@ -194,6 +194,7 @@ const TestTextBox = () => {
     const closeModal = () => {
         setModalVisible(false);
         navigate("/account");
+        
     };
 
     function convertPowers(str) {

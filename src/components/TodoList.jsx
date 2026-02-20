@@ -25,6 +25,10 @@ function TodoList() {
     const saved = sessionStorage.getItem("timer");
     return saved ? Number(saved) : DURATION;
   });
+  const [clicks, setClicks] = useState(() => {
+          const saved = sessionStorage.getItem("clicks");
+          return saved ? JSON.parse(saved) : 0;
+      });
   const [finishedTime, setFinishedTimer] = useState(false);
   useEffect(() => {
     if (seconds <= 0) {
@@ -58,6 +62,7 @@ function TodoList() {
   };
 
   const addTodo = () => {
+    incrementClicks();
     if (!text.trim()) return;
     const newTodo = { text: text, dueDate: new Date() };
     if ((todos.length + 1) % 3 === 0 && todos.length > 0) {
@@ -72,6 +77,7 @@ function TodoList() {
   };
 
   const removeAll = () => {
+    incrementClicks();
     if (todos.length === 0 && !bugEmptyColoumn) {
       setpopUpError(true);
       setErrorMessage("🧹 Ben fatto! Hai individuato un bug di validazione UI (interfaccia utente). Il pulsante “Elimina tutto” resta cliccabile anche quando non ci sono task, permettendo un’azione senza senso. Si tratta di un errore di validazione dello stato: l’app non controlla che la lista sia vuota prima di abilitare l’azione. Questo tipo di bug compromette la coerenza dell’interfaccia e può confondere l’utente.");
@@ -91,6 +97,7 @@ function TodoList() {
   };
 
   const HandleClickDate = (todo) => {
+    incrementClicks();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dateTodo = new Date(todo.dueDate);
@@ -108,6 +115,7 @@ function TodoList() {
   };
 
   const removeTodo = (index) => {
+    incrementClicks();
     setTodos(todos.filter((_, i) => i !== index));
   };
 
@@ -150,6 +158,7 @@ function TodoList() {
 
    
 const CheckDuplicate = (todo) => {
+  incrementClicks();
   const isDup = todos.some(
     (t) => t !== todo && t.text.trim().toLowerCase() === todo.text.trim().toLowerCase()
   );
@@ -167,6 +176,14 @@ const CheckDuplicate = (todo) => {
 
 };
 
+    function incrementClicks() {
+        setClicks((prev) => {
+            const next = prev + 1;
+            sessionStorage.setItem("clicks", JSON.stringify(next));
+            return next; // importante restituire il nuovo valore
+        });
+    }
+
   return (
     <div className="bg-slate-50 overflow-hidden min-h-screen flex flex-col">
       {/* Topbar */}
@@ -174,7 +191,7 @@ const CheckDuplicate = (todo) => {
         <div className="max-w-[1200px] mx-auto px-5 py-3 flex items-center justify-between">
           {/* Sinistra: saluto */}
           <span className="text-lg md:text-xl text-slate-600">
-            <span className="text-purple-800 font-semibold">
+            <span  onClick={incrementClicks} className="text-purple-800 font-semibold">
               Ciao, {user?.email?.split('@')[0] || 'utente'}
             </span>
             {/* ✅ TIMER BADGE */}
@@ -192,8 +209,8 @@ const CheckDuplicate = (todo) => {
               aria-live="polite"
               title="Tempo rimanente"
             >
-              <span className="hidden sm:inline text-xs uppercase">Timer</span>
-              <span className="font-mono text-base">
+              <span className="hidden sm:inline text-xs uppercase" onClick={incrementClicks}>Timer</span>
+              <span className="font-mono text-base" onClick={incrementClicks}>
                 {minutes}:{remainingSeconds.toString().padStart(2, "0")}
               </span>
 
@@ -215,8 +232,8 @@ const CheckDuplicate = (todo) => {
               aria-live="polite"
               title="Punteggio"
             >
-              <span className="text-sm">Punteggio</span>
-              <span className="text-base tabular-nums">{score}</span>
+              <span className="text-sm" onClick={incrementClicks}>Punteggio</span>
+              <span className="text-base tabular-nums" onClick={incrementClicks}>{score}</span>
             </div>
 
             <button
@@ -281,8 +298,8 @@ const CheckDuplicate = (todo) => {
             {/* Colonna centrale (Lista dei Task) */}
             <div className="bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.06)] p-5 flex flex-col">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-slate-900">📋 Task</h2>
-                <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-800 font-semibold">
+                <h2 className="text-xl font-bold text-slate-900" onClick={incrementClicks}>📋 Task</h2>
+                <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-800 font-semibold" onClick={incrementClicks}>
                   {todos.length} attivi
                 </span>
               </div>
@@ -342,26 +359,27 @@ const CheckDuplicate = (todo) => {
 
             {/* Colonna destra (Punti e Bug) */}
             <div className="bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.06)] p-5">
-              <h3 className="text-lg font-semibold text-slate-900">Punti</h3>
+              <h3 className="text-lg font-semibold text-slate-900" onClick={incrementClicks}>Punti</h3>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold text-purple-700 tabular-nums">
+                <span className="text-3xl font-extrabold text-purple-700 tabular-nums" onClick={incrementClicks}>
                   {score}
                 </span>
-                <span className="text-sm text-slate-500">/ 100</span>
+                <span className="text-sm text-slate-500" onClick={incrementClicks}>/ 100</span>
               </div>
 
               {/* Barra progresso */}
               <div className="mt-3 h-2 w-full rounded-full bg-slate-200 overflow-hidden">
-                <div
+                <div 
                   className="h-full bg-gradient-to-r from-purple-600 to-fuchsia-500 rounded-full transition-all"
                   style={{ width: `${Math.min(score, 100)}%` }}
+                  onClick={incrementClicks}
                 />
               </div>
 
               <div className="mt-5">
                 <p className="text-sm font-medium text-slate-700">Bug trovati</p>
                 <div className="text-2xl mt-1">
-                  {"🪲".repeat(Math.floor(score / 30)) || "💤"}
+                  {"🪲".repeat(Math.floor(score / 25)) || "💤"}
                 </div>
               </div>
             </div>
@@ -373,7 +391,7 @@ const CheckDuplicate = (todo) => {
       {showPopup && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4 text-slate-900">Inserisci un'attività</h2>
+            <h2 className="text-xl font-bold mb-4 text-slate-900" onClick={incrementClicks}>Inserisci un'attività</h2>
 
             <input
               type="text"
@@ -381,9 +399,10 @@ const CheckDuplicate = (todo) => {
               value={text}
               onChange={(e) => setText(e.target.value)}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 mb-3 focus:outline-none focus:ring-4 focus:ring-purple-200"
+              onClick={incrementClicks}
             />
 
-            <p className="text-sm text-slate-500 mb-5">
+            <p  onClick={incrementClicks} className="text-sm text-slate-500 mb-5">
               Inserisci la descrizione del tuo task.
             </p>
 

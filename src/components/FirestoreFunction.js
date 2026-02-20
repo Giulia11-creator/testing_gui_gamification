@@ -33,6 +33,10 @@ export async function addUser(collectionName, uid, options = {}) {
           bugEmpty: !!options.bugEmpty,
           bugToInfinity: !!options.bugToInfinity,
           bugSymbols: !!options.bugSymbols,
+          bugWrongDate: !!options.bugWrongDate,
+          bugEmptyColoumn: !!options.bugEmptyColoumn,
+          bugTooManyTasks: !!options.bugTooManyTasks,
+          bugDuplicateTodo: !!options.bugDuplicateTodo
         },
         { merge: true }
       );

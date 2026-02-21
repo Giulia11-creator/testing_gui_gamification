@@ -137,7 +137,7 @@ function TodoList() {
   useEffect(() => {
     (async () => {
       if (user) {
-        await addUser("Todo", user.uid, { score, email: user.email, time: formatTime() });
+        await addUser("Todo", user.uid, { score, email: user.email, time: formatTime(), bugDuplicateTodo:bugDuplicateTodo, bugEmptyColoumn:bugEmptyColoumn, bugTooManyTasks:bugTooManyTasks, bugWrongDate:bugWrongDate, Totalclicks:clicks });
       }
     })(); 
   }, [score, user, formatTime]);

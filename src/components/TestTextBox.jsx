@@ -76,7 +76,7 @@ const TestTextBox = () => {
                 if (!bugLetter) {
                     setbugLetter(true);
                     seterror(true);
-                    seterrorMessage("🔤 Congratulazioni! Hai trovato il bug delle lettere...");
+                    seterrorMessage("🔤 Congratulazioni! Hai trovato il Bug di validazione input: questa categoria di bug succede quando l’app non controlla bene cosa può essere inserito. Qui la calcolatrice non gestisce correttamente le lettere dentro l’espressione e va in errore invece di bloccarle o spiegare chiaramente cosa non va.");
                 } else {
                     seterror(true);
                     seterrorMessage("Hai già trovato il bug delle lettere!");
@@ -91,7 +91,7 @@ const TestTextBox = () => {
                 if (!bugSymbols) {
                     setbugSymbols(true);
                     seterror(true);
-                    seterrorMessage("❌ Ottimo lavoro! Hai individuato il bug dei simboli...");
+                    seterrorMessage("❌ Ottimo lavoro! Hai individuato il Bug di validazione input: questi bug capitano quando l’app permette o non gestisce caratteri non previsti. Qui inserendo simboli speciali l’app non li tratta correttamente e genera un errore invece di impedirli o segnalarli in modo chiaro.");
                 } else {
                     seterror(true);
                     seterrorMessage("Hai già trovato il bug del simbolo non accettabile!");
@@ -106,7 +106,7 @@ const TestTextBox = () => {
                 if (!bugEmpty) {
                     setbugEmpty(true);
                     seterror(true);
-                    seterrorMessage("⚠️ Ben fatto! Hai scoperto il bug dell'input vuoto...");
+                    seterrorMessage("⚠️ Ben fatto! Hai scoperto il Bug di caso limite: questi bug succedono quando l’app non gestisce bene situazioni semplici ma frequenti. Qui se premi “calcola” con input vuoto l’app va in errore invece di chiederti di inserire un’espressione valida.");
                 } else {
                     seterror(true);
                     seterrorMessage("Hai già trovato il bug dell'input vuoto!");
@@ -124,7 +124,7 @@ const TestTextBox = () => {
                 if (!bugToInfinity) {
                     setBugToInfinity(true);
                     seterror(true);
-                    seterrorMessage("♾️ Bug trovato! Il calcolo produce un valore infinito/non valido.");
+                    seterrorMessage("♾️ hai trovato un Bug di robustezza del calcolo: questi bug compaiono quando l’app non gestisce risultati matematici non validi (Infinity o NaN). Qui alcune operazioni producono un valore infinito/non numerico e l’app non lo gestisce come dovrebbe.");
                 } else {
                     seterror(true);
                     seterrorMessage("Hai già trovato il bug di Infinity/NaN!");
@@ -149,7 +149,7 @@ const TestTextBox = () => {
         if (hadComa && !bugDecimal) {
             setBugDecimal(true);
             seterror(true);
-            seterrorMessage("⚠️ Ben fatto! Hai scoperto un bug di validazione dell’input utente. La calculatetrice accetta anche i numeri scritti con la virgola, ma ne sbaglia il result");
+            seterrorMessage("⚠️ Ben fatto! Hai scoperto un 🧮 Bug di formattazione numerica (virgola/punto): questi bug succedono quando l’app interpreta male i numeri in base al formato locale. Qui la calcolatrice accetta numeri con la virgola, ma poi tronca la parte decimale e mostra un risultato sbagliato.");
 
         }
         else if (hadComa && bugDecimal) {

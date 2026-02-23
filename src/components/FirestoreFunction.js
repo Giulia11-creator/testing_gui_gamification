@@ -36,7 +36,8 @@ export async function addUser(collectionName, uid, options = {}) {
           bugWrongDate: !!options.bugWrongDate,
           bugEmptyColoumn: !!options.bugEmptyColoumn,
           bugTooManyTasks: !!options.bugTooManyTasks,
-          bugDuplicateTodo: !!options.bugDuplicateTodo
+          bugDuplicateTodo: !!options.bugDuplicateTodo,
+           bugWrongText: !!options.bugWrongText
         },
         { merge: true }
       );
@@ -53,6 +54,7 @@ export async function addUser(collectionName, uid, options = {}) {
         bugEmpty: !!options.bugEmpty,
         bugToInfinity: !!options.bugToInfinity,
         bugSymbols: !!options.bugSymbols,
+        bugWrongText: !!options.bugWrongText,
         createdAt: serverTimestamp(),
         lastUpdate: serverTimestamp(),
       });

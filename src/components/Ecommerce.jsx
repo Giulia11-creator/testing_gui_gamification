@@ -76,7 +76,7 @@ const Ecommerce = () => {
     if (bugNoObject) {
       const flag = sessionStorage.getItem('scoreSetForBugNoObject');
       if (!flag) {
-        const newScore = score + 33;
+        const newScore = score + 25;
         setscore(newScore);
         sessionStorage.setItem('score', JSON.stringify(newScore));
         sessionStorage.setItem('scoreSetForBugNoObject', 'true');
@@ -92,7 +92,7 @@ const Ecommerce = () => {
     if (bugWrongProduct) {
       const flag = sessionStorage.getItem('scoreSetForbugWrongProduct');
       if (!flag) {
-        const newScore = score + 33;
+        const newScore = score + 25;
         setscore(newScore);
         sessionStorage.setItem('score', JSON.stringify(newScore));
         sessionStorage.setItem('scoreSetForbugWrongProduct', 'true');
@@ -126,12 +126,12 @@ const Ecommerce = () => {
   const handleFirstClick = (titleP, priceP, photoP) => {
     isSleeping.current = true;
     secondClickedDuringSleep.current = false;
-    productToSave.current = { title: titleP, price: priceP, photo: photoP };
+    productToSave.current = { sku: titleP, title: titleP, price: priceP, photo: photoP };
 
     setTimeout(() => {
       if (!secondClickedDuringSleep.current) {
         sessionStorage.setItem("count", length + 1);
-        saveProduct(productToSave.current.title, productToSave.current.price, productToSave.current.photo);
+        saveProduct(productToSave.current.sku, productToSave.current.title, productToSave.current.price, productToSave.current.photo);
         isSleeping.current = false;
       } else {
         secondClickedDuringSleep.current = false;
@@ -140,26 +140,23 @@ const Ecommerce = () => {
     }, 4000);
   };
 
-  const RemoveItem = (title, price, photo) => {
+  const RemoveItem = (sku) => {
     const raw = sessionStorage.getItem("products");
     const list = raw ? JSON.parse(raw) : [];
-    const trovato = list.some(p => p.title === title && p.price === price && p.photo === photo);
 
-    if (!trovato && !bugNoObject) {
+    const exists = list.some((p) => p.sku === sku);
 
+    if (!exists && !bugNoObject) {
       setbugNoObject(true);
       return;
     }
 
-    const clone = [...list];
-    const index = clone.findIndex(p => p.title === title && p.price === price && p.photo === photo);
-
-    if (index !== -1) {
-      clone.splice(index, 1);
-      sessionStorage.setItem("products", JSON.stringify(clone));
-      sessionStorage.setItem("count", clone.length);
-    }
+    const filtered = list.filter((p) => p.sku !== sku);
+    sessionStorage.setItem("products", JSON.stringify(filtered));
+    sessionStorage.setItem("count", filtered.length);
   };
+
+
 
   const handleSecondClick = () => {
     if (isSleeping.current) {
@@ -177,18 +174,36 @@ const Ecommerce = () => {
     navigate("/account");
   };
 
-  function saveProduct(title, price, photo) {
-    const product = {
-      title: document.getElementById(title).textContent,
-      price: document.getElementById(price).textContent,
-      photo: document.getElementById(photo).src
-    };
+  function saveProduct(sku, titleId, priceId, photoId) {
+    const titleText = document.getElementById(titleId)?.textContent ?? "";
+    const priceText = document.getElementById(priceId)?.textContent ?? "";
+    const photoSrc = document.getElementById(photoId)?.src ?? "";
+
+    let productObj;
+
+    if (sku === "ipadTitle") {
+      productObj = {
+        sku,
+        title: titleText,
+        price: "$6200,00", // prezzo volutamente sbagliato
+        rightPrice: priceText,
+        photo: photoSrc,
+      };
+    } else {
+      productObj = {
+        sku,
+        title: titleText,
+        price: priceText,
+        photo: photoSrc,
+      };
+    }
 
     let products = sessionStorage.getItem("products");
     products = products ? JSON.parse(products) : [];
-    products.push(product);
+    products.push(productObj);
     sessionStorage.setItem("products", JSON.stringify(products));
   }
+
 
   useEffect(() => {
     let length = JSON.parse(sessionStorage.getItem("products") || "[]").length;
@@ -279,7 +294,7 @@ const Ecommerce = () => {
               <h1 className="text-2xl font-bold text-slate-900">Negozio</h1>
               <div className="flex items-center gap-4">
                 <span aria-label="bug-score" className="text-2xl">
-                  {'🪲'.repeat(Math.floor(score / 30))}
+                  {'🪲'.repeat(Math.floor(score / 25))}
                 </span>
                 <button
                   onClick={handleSecondClick}
@@ -343,12 +358,7 @@ const Ecommerce = () => {
                       type="button"
                       className="inline-flex items-center bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-rose-300 active:shadow-inner transition"
                       onClick={() =>
-                        RemoveItem(
-                          document.getElementById("imacTitle").textContent,
-                          document.getElementById("imacPrice").textContent,
-                          document.getElementById("imacPhoto").src
-                        )
-                      }
+                        RemoveItem("imacTitle")}
                     >
                       ✕ Rimuovi
                     </button>
@@ -398,12 +408,7 @@ const Ecommerce = () => {
                       type="button"
                       className="inline-flex items-center bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-rose-300 active:shadow-inner transition"
                       onClick={() =>
-                        RemoveItem(
-                          document.getElementById("matebookTitle").textContent,
-                          document.getElementById("matebookPrice").textContent,
-                          document.getElementById("matebookPhoto").src
-                        )
-                      }
+                        RemoveItem("matebookTitle")}
                     >
                       ✕ Rimuovi
                     </button>
@@ -453,12 +458,7 @@ const Ecommerce = () => {
                       type="button"
                       className="inline-flex items-center bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-rose-300 active:shadow-inner transition"
                       onClick={() =>
-                        RemoveItem(
-                          document.getElementById("watchTitle").textContent,
-                          document.getElementById("watchPrice").textContent,
-                          document.getElementById("watchPhoto").src
-                        )
-                      }
+                        RemoveItem("watchTitle")}
                     >
                       ✕ Rimuovi
                     </button>
@@ -508,12 +508,7 @@ const Ecommerce = () => {
                       type="button"
                       className="inline-flex items-center bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-rose-300 active:shadow-inner transition"
                       onClick={() =>
-                        RemoveItem(
-                          document.getElementById("ipadTitle").textContent,
-                          document.getElementById("ipadPrice").textContent,
-                          document.getElementById("ipadPhoto").src
-                        )
-                      }
+                        RemoveItem("ipadTitle")}
                     >
                       ✕ Rimuovi
                     </button>
@@ -563,12 +558,7 @@ const Ecommerce = () => {
                       type="button"
                       className="inline-flex items-center bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-rose-300 active:shadow-inner transition"
                       onClick={() =>
-                        RemoveItem(
-                          document.getElementById("ps5Title").textContent,
-                          document.getElementById("ps5Price").textContent,
-                          document.getElementById("ps5Photo").src
-                        )
-                      }
+                        RemoveItem("ps5Title")}
                     >
                       ✕ Rimuovi
                     </button>

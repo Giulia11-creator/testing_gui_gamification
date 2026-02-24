@@ -26,7 +26,8 @@ const Cart = () => {
   const storedProducts = sessionStorage.getItem("products");
   const products = storedProducts ? JSON.parse(storedProducts) : [];
   const length = Array.isArray(products) ? products.length : 0;
-
+  const [errormessage, seterrormessage] = useState("");
+  const [dislpay, setdisplay] = useState(false);
   // ✅ hooks now inside the component
   const [seconds, setseconds] = useState(() => {
     const saved = sessionStorage.getItem("timer");
@@ -36,6 +37,11 @@ const Cart = () => {
 
   const [bugFlaky, setbugFlaky] = useState(() => {
     const saved = sessionStorage.getItem('bugFlaky');
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  const [bugWrongPrice, setbugWrongPrice] = useState(() => {
+    const saved = sessionStorage.getItem('bugWrongPrice');
     return saved ? JSON.parse(saved) : false;
   });
   const [score, setscore] = useState(() => {
@@ -48,7 +54,6 @@ const Cart = () => {
       setFinishedTimer(true);
       return;
     }
-
     const id = setInterval(() => {
       setseconds((prev) => {
         const next = prev - 1;
@@ -70,6 +75,18 @@ const Cart = () => {
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   }, [elapsed]);
 
+
+  const handleProductClick = (product) => {
+    // se manca rightPrice, non faccio nulla
+    if (!product?.rightPrice) return;
+
+    if (product.price !== product.rightPrice) {
+      setbugWrongPrice(true);
+      sessionStorage.setItem("bugWrongPrice", "true");
+
+    }
+  };
+
   // Persist/aggiorna punteggio su Firestore
   useEffect(() => {
     (async () => {
@@ -81,16 +98,42 @@ const Cart = () => {
 
   // Incrementa score la prima volta che rileviamo bugFlaky
   useEffect(() => {
-    if (bugFlaky) {
-      const flag = sessionStorage.getItem('scoreSetForbugFlaky');
-      if (!flag) {
-        const newScore = score + 34; // completa a 100 insieme agli altri +33 +33
-        setscore(newScore);
-        sessionStorage.setItem('score', JSON.stringify(newScore));
-        sessionStorage.setItem('scoreSetForbugFlaky', 'true');
-      }
-    }
-  }, [bugFlaky, score]);
+
+    if (!bugFlaky) return;
+    const flag2 = sessionStorage.getItem('scoreSetForbugFlaky');
+    if (flag2) return;
+    const newScore = score + 25; // completa a 100 insieme agli altri +33 +33
+    setscore(newScore);
+    sessionStorage.setItem('score', JSON.stringify(newScore));
+    sessionStorage.setItem('scoreSetForbugFlaky', 'true');
+    seterrormessage(" ⚡ Ottimo lavoro! Hai scoperto un flaky bug — un tipo di errore intermittente e dipendente dal tempo. Succede quando aggiungi un prodotto e premi troppo in fretta il pulsante “Carrello”: il prodotto appena inserito non viene salvato e non compare nella lista. Questo è un classico bug di concorrenza temporale(race condition): due operazioni(inserimento e navigazione) vengono eseguite troppo vicine nel tempo, e l’app non riesce a completare correttamente il salvataggio. È un flaky bug, cioè un errore che non si manifesta sempre, ma solo in certe tempistiche o condizioni specifiche. Questi bug sono tra i più difficili da trovare e da correggere, perché dipendono dalla velocità dell’utente o del dispositivo.");
+    setdisplay(true);
+
+  }, [bugFlaky]);
+
+  useEffect(() => {
+
+    if (!bugWrongPrice) return;
+    const flag = sessionStorage.getItem('scoreSetForbugWrongPrice');
+    if (flag) return;
+    const newScore = score + 25; // completa a 100 insieme agli altri +33 +33
+    setscore(newScore);
+    sessionStorage.setItem('score', JSON.stringify(newScore));
+    sessionStorage.setItem('scoreSetForbugWrongPrice', 'true');
+    seterrormessage(
+      "⚡ Ottimo lavoro! Hai scoperto un bug nel prezzo — un errore di coerenza dei dati (data inconsistency). " +
+      "In questa situazione l’app mostra un prezzo (`price`) diverso da quello corretto (`rightPrice`). " +
+      "Di solito succede quando il prezzo viene trasformato male (per esempio separatori come '.' e ','), " +
+      "quando c’è un arrotondamento non corretto, oppure quando UI e dato reale non sono aggiornati nello stesso momento. " +
+      "Questo bug è critico perché altera il totale del carrello e può portare l’utente a pagare (o vedere) importi sbagliati. " +
+      "La soluzione tipica è validare sempre il prezzo mostrato rispetto alla sorgente corretta e normalizzare il formato prima di calcolare i totali."
+    );
+    setdisplay(true);
+
+
+  }, [bugWrongPrice]);
+
+
 
   // Rileva il bug "flaky cart" quando il conteggio visuale > elementi effettivi
   useEffect(() => {
@@ -101,7 +144,8 @@ const Cart = () => {
   }, [count, length]);
 
   const ClosePopUp = () => {
-    navigate("/ecommerce");
+    setdisplay(false);
+    seterrormessage("");
   };
 
   const total = products.reduce((sum, p) => sum + parsePrice(p.price), 0);
@@ -114,7 +158,7 @@ const Cart = () => {
           <h1 className="text-2xl font-bold text-slate-900">Carrello</h1>
           <div className="flex items-center gap-3">
             <span aria-label="bug-score" className="text-2xl">
-              {'🪲'.repeat(Math.floor(score / 30))}
+              {'🪲'.repeat(Math.floor(score / 25))}
             </span>
             {/* ✅ TIMER BADGE */}
             <div
@@ -160,16 +204,12 @@ const Cart = () => {
             <div className="space-y-6">
               <div className="rounded-2xl bg-white p-4 md:p-6 shadow-[0_2px_6px_rgba(0,0,0,0.05)] border border-slate-200">
                 {/* Popup bug flaky inline */}
-                {count > length && (
+                {dislpay && (
                   <div className="mb-6">
                     <div className="bg-white p-6 rounded-2xl border border-purple-200 shadow-2xl text-center">
                       <h3 className="text-2xl font-semibold mb-3 text-purple-700">Ottimo lavoro!</h3>
                       <p className="mb-6 text-slate-700">
-                        ⚡ Ottimo lavoro! Hai scoperto un flaky bug — un tipo di errore intermittente e dipendente dal tempo.
-                        Succede quando aggiungi un prodotto e premi troppo in fretta il pulsante “Carrello”: il prodotto appena inserito non viene salvato e non compare nella lista.
-                        Questo è un classico bug di concorrenza temporale (race condition): due operazioni (inserimento e navigazione) vengono eseguite troppo vicine nel tempo, e l’app non riesce a completare correttamente il salvataggio.
-                        È un flaky bug, cioè un errore che non si manifesta sempre, ma solo in certe tempistiche o condizioni specifiche.
-                        Questi bug sono tra i più difficili da trovare e da correggere, perché dipendono dalla velocità dell’utente o del dispositivo.
+                        {errormessage}
                       </p>
                       <button
                         onClick={ClosePopUp}
@@ -191,6 +231,7 @@ const Cart = () => {
                       title={product.title}
                       price={product.price}
                       photo={product.photo}
+                      onClick={() => handleProductClick(product)}
                     />
                   ))
                 )}
@@ -230,14 +271,8 @@ const Cart = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    if (!bugFlaky) navigate('/ecommerce');
+                    navigate('/ecommerce');
                   }}
-                  disabled={bugFlaky}
-                  className={`inline-flex items-center gap-2 text-sm font-medium underline ${bugFlaky
-                    ? 'text-slate-400 cursor-not-allowed'
-                    : 'text-sky-700 hover:no-underline'
-                    }`}
-                  aria-disabled={bugFlaky}
                 >
                   Continua lo shopping
                   <svg

@@ -172,7 +172,7 @@ const TestTextBox = () => {
     useEffect(() => {
         (async () => {
             if (user) {
-                await addUser("TextBox", user.uid, { score, email: user.email, time: formatTime(), Totalclicks: clicks, bugLetter: bugLetter, bugDecimal: bugDecimal, bugEmpty: bugEmpty, bugToInfinity: bugToInfinity, bugSymbols: bugSymbols });
+                await addUser("TextBox", user.uid, { score, email: user.email, time: formatTime(), Totalclicks: clicks, bugs: {bugLetter: bugLetter, bugDecimal: bugDecimal, bugEmpty: bugEmpty, bugToInfinity: bugToInfinity, bugSymbols: bugSymbols }});
             }
         })();
     }, [score, user, formatTime, seconds, clicks, bugDecimal, bugEmpty, bugLetter, bugSymbols, bugToInfinity]);

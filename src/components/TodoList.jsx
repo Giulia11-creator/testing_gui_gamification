@@ -171,12 +171,14 @@ function TodoList() {
           score,
           email: user.email,
           time: formatTime(),
+          Totalclicks: clicks,
+          bugs: {
           bugDuplicateTodo: bugDuplicateTodo,
           bugEmptyColoumn: bugEmptyColoumn,
           bugTooManyTasks: bugTooManyTasks,
           bugWrongDate: bugWrongDate,
-          bugWrongText: bugWrongText,
-          Totalclicks: clicks,
+          bugWrongText: bugWrongText},
+         
         });
       }
     })();

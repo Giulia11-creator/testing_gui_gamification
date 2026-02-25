@@ -38,11 +38,11 @@ const Account = () => {
 
       if (docSnap.exists()) {
         if (raccolta == "TextBox")
-          setProgress1(docSnap.data()?.percentage);
+          setProgress1(docSnap.data()?.score);
         if (raccolta == "Todo")
-          setProgress3(docSnap.data()?.percentage);
+          setProgress3(docSnap.data()?.score);
         if (raccolta == "Ecommerce")
-          setProgress2(docSnap.data()?.percentage); // Imposto il punteggio di progress1
+          setProgress2(docSnap.data()?.score); // Imposto il punteggio di progress1
       } else {
         console.log("Il documento non esiste!");
       }

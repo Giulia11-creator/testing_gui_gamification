@@ -154,13 +154,23 @@ function TodoList() {
     if (bugWrongDate) currentScore += 20;
     if (bugTooManyTasks) currentScore += 20;
     if (bugDuplicateTodo) currentScore += 20;
-    if(bugWrongText) currentScore += 20;
+    if (bugWrongText) currentScore += 20;
     setscore(currentScore);
-  }, [bugEmptyColoumn, bugWrongDate, bugTooManyTasks, bugDuplicateTodo, bugWrongText]);
+  }, [
+    bugEmptyColoumn,
+    bugWrongDate,
+    bugTooManyTasks,
+    bugDuplicateTodo,
+    bugWrongText,
+  ]);
 
   useEffect(() => {
     if (score === 100) {
-      setshowModal(true);
+      const timer = setTimeout(() => {
+        setshowModal(true);
+      }, 4000); // 4 secondi
+
+      return () => clearTimeout(timer); // cleanup importante
     }
   }, [score]);
 
@@ -173,12 +183,12 @@ function TodoList() {
           time: formatTime(),
           Totalclicks: clicks,
           bugs: {
-          bugDuplicateTodo: bugDuplicateTodo,
-          bugEmptyColoumn: bugEmptyColoumn,
-          bugTooManyTasks: bugTooManyTasks,
-          bugWrongDate: bugWrongDate,
-          bugWrongText: bugWrongText},
-         
+            bugDuplicateTodo: bugDuplicateTodo,
+            bugEmptyColoumn: bugEmptyColoumn,
+            bugTooManyTasks: bugTooManyTasks,
+            bugWrongDate: bugWrongDate,
+            bugWrongText: bugWrongText,
+          },
         });
       }
     })();
@@ -244,8 +254,8 @@ function TodoList() {
       if (isDup) {
         if (!bugDuplicateTodo) {
           setErrorMessage(
-          "🌀 Ottimo lavoro! Hai trovato un 🧾 Bug di validazione dati: succede quando l’app non controlla bene ciò che l’utente inserisce, creando dati sporchi o incoerenti. Qui è possibile aggiungere task duplicati, quindi la lista può contenere elementi uguali e diventare confusionaria.",
-        );
+            "🌀 Ottimo lavoro! Hai trovato un 🧾 Bug di validazione dati: succede quando l’app non controlla bene ciò che l’utente inserisce, creando dati sporchi o incoerenti. Qui è possibile aggiungere task duplicati, quindi la lista può contenere elementi uguali e diventare confusionaria.",
+          );
           setbugDuplicateTodo(true);
         } else {
           setErrorMessage("Hai già trovato questo bug !!!");

@@ -127,7 +127,14 @@ const Ecommerce = () => {
 
   // Fine gioco
   useEffect(() => {
-    if (score === 100) setModalVisible(true);
+    
+    if (score === 100) {
+      const timer = setTimeout(() => {
+        setModalVisible(true);
+      }, 4000); // 4 secondi
+
+      return () => clearTimeout(timer); // cleanup importante
+    }
   }, [score]);
 
   // Salva score su Firestore
@@ -174,7 +181,7 @@ const Ecommerce = () => {
         secondClickedDuringSleep.current = false;
         isSleeping.current = false;
       }
-    }, 4000);
+    }, 2000);
   };
 
   const RemoveItem = (sku) => {

@@ -55,7 +55,7 @@ function TodoList() {
       setTodos((prevTodos) =>
         prevTodos.map((todo) =>
           todo.id === 4
-            ? { ...todo, text: "Testo modificato automaticamente" }
+            ? { ...todo, text: "Focaccia" }
             : todo,
         ),
       );

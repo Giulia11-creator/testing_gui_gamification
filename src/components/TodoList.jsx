@@ -187,7 +187,7 @@ function TodoList() {
             bugEmptyColoumn: bugEmptyColoumn,
             bugTooManyTasks: bugTooManyTasks,
             bugWrongDate: bugWrongDate,
-            bugWrongText: bugWrongText,
+            bugWrongText: bugWrongText
           },
         });
       }

@@ -187,7 +187,7 @@ const TestTextBox = () => {
             bugDecimal: bugDecimal,
             bugEmpty: bugEmpty,
             bugToInfinity: bugToInfinity,
-            bugSymbols: bugSymbols,
+            bugSymbols: bugSymbols
           },
         });
       }

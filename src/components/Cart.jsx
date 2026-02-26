@@ -110,10 +110,9 @@ const Cart = () => {
           Totalclicks: clicks,
           bugs: {
             bugNoObject: sessionStorage.getItem("bugNoObject") === "true",
-            bugWrongProduct:
-              sessionStorage.getItem("bugWrongProduct") === "true",
+            bugWrongProduct: sessionStorage.getItem("bugWrongProduct") === "true",
             bugWrongPrice: bugWrongPrice,
-            bugFlaky: bugFlaky,
+            bugFlaky: bugFlaky
           },
         });
       }

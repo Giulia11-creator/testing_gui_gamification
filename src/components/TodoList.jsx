@@ -111,6 +111,7 @@ function TodoList() {
       setbugEmptyColoumn(true);
     } else {
       setTodos([]);
+      nextId.current=0;
     }
   };
 
@@ -118,7 +119,6 @@ function TodoList() {
     setpopUpError(false);
     setErrorMessage("");
     if (bugTooManyTasks) {
-      setTodos([]);
       setShowEmoji(false);
     }
   };
@@ -217,6 +217,7 @@ function TodoList() {
       setpopUpError(true);
       setShowEmoji(true);
       setTodos([]);
+      nextId.current = 0;
     }
   }, [todos, bugTooManyTasks]);
 
@@ -528,7 +529,7 @@ function TodoList() {
                   Bug trovati
                 </p>
                 <div className="text-2xl mt-1">
-                  {"🪲".repeat(Math.floor(score / 25)) || "💤"}
+                  {"🪲".repeat(Math.floor(score / 20)) || "💤"}
                 </div>
               </div>
             </div>

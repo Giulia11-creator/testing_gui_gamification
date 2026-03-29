@@ -106,7 +106,7 @@ function TodoList() {
     if (todos.length === 0 && !bugEmptyColoumn) {
       setpopUpError(true);
       setErrorMessage(
-        "🧹 Ben fatto! Hai individuato un bug di validazione UI (interfaccia utente). Il pulsante “Elimina tutto” resta cliccabile anche quando non ci sono task, permettendo un’azione senza senso. Si tratta di un errore di validazione dello stato: l’app non controlla che la lista sia vuota prima di abilitare l’azione. Questo tipo di bug compromette la coerenza dell’interfaccia e può confondere l’utente.",
+        "🧹 Ben fatto! Hai individuato un bug di validazione UI (interfaccia utente). Il pulsante “Elimina tutto” resta cliccabile anche quando non ci sono task, permettendo un’azione senza senso. L’app non controlla che la lista sia vuota prima di abilitare l’azione. Un bug di validazione è un errore nel software che avviene quando il programma non controlla correttamente i dati o le condizioni prima di accettarli o usarli."
       );
       setbugEmptyColoumn(true);
     } else {
@@ -232,7 +232,7 @@ function TodoList() {
     if (isDup) {
       if (!bugDuplicateTodo) {
         setErrorMessage(
-          "🌀 Ottimo lavoro! Hai trovato un 🧾 Bug di validazione dati: succede quando l’app non controlla bene ciò che l’utente inserisce, creando dati sporchi o incoerenti. Qui è possibile aggiungere task duplicati, quindi la lista può contenere elementi uguali e diventare confusionaria.",
+          "🌀 Ottimo lavoro! Hai trovato un 🧾 Bug di validazione dati: succede quando l’app non controlla bene ciò che l’utente inserisce, creando dati sporchi o incoerenti. Qui è possibile aggiungere task duplicati, quindi la lista può contenere elementi uguali e diventare confusionaria. Un bug di validazione è un errore nel software che avviene quando il programma non controlla correttamente i dati o le condizioni prima di accettarli o usarli.",
         );
         setbugDuplicateTodo(true);
       } else {
@@ -255,7 +255,7 @@ function TodoList() {
       if (isDup) {
         if (!bugDuplicateTodo) {
           setErrorMessage(
-            "🌀 Ottimo lavoro! Hai trovato un 🧾 Bug di validazione dati: succede quando l’app non controlla bene ciò che l’utente inserisce, creando dati sporchi o incoerenti. Qui è possibile aggiungere task duplicati, quindi la lista può contenere elementi uguali e diventare confusionaria.",
+            "🌀 Ottimo lavoro! Hai trovato un 🧾 Bug di validazione dati: succede quando l’app non controlla bene ciò che l’utente inserisce, creando dati sporchi o incoerenti. Qui è possibile aggiungere task duplicati, quindi la lista può contenere elementi uguali e diventare confusionaria. Un bug di validazione è un errore nel software che avviene quando il programma non controlla correttamente i dati o le condizioni prima di accettarli o usarli.",
           );
           setbugDuplicateTodo(true);
         } else {
@@ -268,7 +268,7 @@ function TodoList() {
       if (todo.text != oldText) {
         if (!bugWrongText) {
           setErrorMessage(
-            "🌀 Ottimo lavoro! Hai trovato un ✍️ Bug da side effect: accade quando qualcosa modifica i dati “da solo” senza un’azione diretta dell’utente (timer, effetti, aggiornamenti automatici). Qui un task cambia testo automaticamente dopo poco tempo, alterando l’informazione inserita dall’utente.",
+            "🌀 Ottimo lavoro! Hai trovato un ✍️ Flaky bug: è un bug che non si manifesta in modo stabile: lo stesso test può funzionare alcune volte e fallire altre. Questo li rende molto difficili da trovare e correggere."
           );
           setbugWrongText(true);
         } else {

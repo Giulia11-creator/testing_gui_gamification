@@ -129,7 +129,7 @@ const Cart = () => {
     sessionStorage.setItem("score", JSON.stringify(newScore));
     sessionStorage.setItem("scoreSetForbugFlaky", "true");
     seterrormessage(
-      " ⚡ Ottimo lavoro! Hai scoperto un flaky bug — un tipo di errore intermittente e dipendente dal tempo. Succede quando aggiungi un prodotto e premi troppo in fretta il pulsante “Carrello”: il prodotto appena inserito non viene salvato e non compare nella lista. Questo è un classico bug di concorrenza temporale(race condition): due operazioni(inserimento e navigazione) vengono eseguite troppo vicine nel tempo, e l’app non riesce a completare correttamente il salvataggio. È un flaky bug, cioè un errore che non si manifesta sempre, ma solo in certe tempistiche o condizioni specifiche. Questi bug sono tra i più difficili da trovare e da correggere, perché dipendono dalla velocità dell’utente o del dispositivo.",
+      " ⚡ Ottimo lavoro! Hai scoperto un flaky bug — Questo è un bug che non si manifesta in modo stabile: lo stesso test può funzionare alcune volte e fallire altre. Succede quando aggiungi un prodotto e premi troppo in fretta il pulsante “Carrello”: il prodotto appena inserito non viene salvato e non compare nella lista. Questi bug sono tra i più difficili da trovare e da correggere, perché dipendono dalla velocità dell’utente o del dispositivo."
     );
     setdisplay(true);
   }, [bugFlaky]);
@@ -143,12 +143,10 @@ const Cart = () => {
     sessionStorage.setItem("score", JSON.stringify(newScore));
     sessionStorage.setItem("scoreSetForbugWrongPrice", "true");
     seterrormessage(
-      "⚡ Ottimo lavoro! Hai scoperto un bug nel prezzo — un errore di coerenza dei dati (data inconsistency). " +
-        "In questa situazione l’app mostra un prezzo (`price`) diverso da quello corretto (`rightPrice`). " +
+      "⚡ Ottimo lavoro! Hai scoperto un bug nel prezzo — un errore di inconsistenza dei dati (data inconsistency). " +
+        "In questa situazione l’app mostra un prezzo diverso da quello corretto. " +
         "Di solito succede quando il prezzo viene trasformato male (per esempio separatori come '.' e ','), " +
-        "quando c’è un arrotondamento non corretto, oppure quando UI e dato reale non sono aggiornati nello stesso momento. " +
-        "Questo bug è critico perché altera il totale del carrello e può portare l’utente a pagare (o vedere) importi sbagliati. " +
-        "La soluzione tipica è validare sempre il prezzo mostrato rispetto alla sorgente corretta e normalizzare il formato prima di calcolare i totali.",
+        "Un bug di inconsistenza dei dati si verifica quando lo stesso dato viene memorizzato o mostrato in modo diverso in punti diversi del sistema." 
     );
     setdisplay(true);
   }, [bugWrongPrice]);

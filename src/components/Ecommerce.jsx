@@ -113,7 +113,7 @@ const Ecommerce = () => {
         sessionStorage.setItem("scoreSetForbugWrongProduct", "true");
         sessionStorage.setItem("bugWrongProduct", JSON.stringify(true));
         setmessaggioErrore(
-          "🛍️ Ben fatto! Hai individuato un bug di coerenza dei dati (data inconsistency). Durante la navigazione, uno dei prodotti può cambiare nome da solo, anche senza alcuna interazione. Questo tipo di bug si verifica quando i dati condivisi tra più componenti o funzioni vengono modificati in modo non controllato, oppure quando un riferimento a oggetti in memoria viene riutilizzato o sovrascritto per errore. È un bug logico di gestione dello stato, perché il codice non garantisce l’integrità dei dati mostrati. In un’app reale, questo potrebbe portare a descrizioni errate, ordini sbagliati o confusione per l’utente finale.",
+          "🛍️ Ben fatto! Hai individuato un bug di inconsistenza dei dati (data inconsistency). Durante la navigazione, uno dei prodotti può cambiare nome da solo, anche senza alcuna interazione. Questo tipo di bug si verifica quando lo stesso dato viene memorizzato o mostrato in modo diverso in punti diversi del sistema. È un bug logico di gestione dello stato, perché il codice non garantisce l’integrità dei dati mostrati. In un’app reale, questo potrebbe portare a descrizioni errate, ordini sbagliati o confusione per l’utente finale."
         );
         setpopVisible(true);
       }

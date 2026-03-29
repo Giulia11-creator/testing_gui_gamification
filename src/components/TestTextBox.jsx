@@ -75,7 +75,7 @@ const TestTextBox = () => {
           setbugLetter(true);
           seterror(true);
           seterrorMessage(
-            "🔤 Congratulazioni! Hai trovato il Bug di validazione input: questa categoria di bug succede quando l’app non controlla bene cosa può essere inserito. Qui la calcolatrice non gestisce correttamente le lettere dentro l’espressione e va in errore invece di bloccarle o spiegare chiaramente cosa non va.",
+            "🔤 Congratulazioni! Hai trovato il Bug di validazione input: Un bug di validazione è un errore nel software che avviene quando il programma non controlla correttamente i dati o le condizioni prima di accettarli o usarli. Qui la calcolatrice non gestisce correttamente le lettere dentro l’espressione e va in errore invece di bloccarle o spiegare chiaramente cosa non va.",
           );
         } else {
           seterror(true);
@@ -92,7 +92,7 @@ const TestTextBox = () => {
           setbugSymbols(true);
           seterror(true);
           seterrorMessage(
-            "❌ Ottimo lavoro! Hai individuato il Bug di validazione input: questi bug capitano quando l’app permette o non gestisce caratteri non previsti. Qui inserendo simboli speciali l’app non li tratta correttamente e genera un errore invece di impedirli o segnalarli in modo chiaro.",
+            "❌ Ottimo lavoro! Hai individuato il Bug di validazione input: Un bug di validazione è un errore nel software che avviene quando il programma non controlla correttamente i dati o le condizioni prima di accettarli o usarli. Qui inserendo simboli speciali l’app non li tratta correttamente e genera un errore invece di impedirli o segnalarli in modo chiaro.",
           );
         } else {
           seterror(true);
@@ -145,7 +145,7 @@ const TestTextBox = () => {
       setresult(res);
     } catch (error) {
       seterror(true);
-      seterrorMessage(error?.message || "error sconosciuto");
+      seterrorMessage("Errore: non puoi fare questa azione" || "errore sconosciuto");
       setresult(null);
     }
   };

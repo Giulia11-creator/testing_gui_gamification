@@ -424,7 +424,7 @@ function TodoList() {
                   className="text-xl font-bold text-slate-900"
                   onClick={incrementClicks}
                 >
-                  📋 Task
+                  📋 Task della giornata
                 </h2>
                 <span
                   className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-800 font-semibold"

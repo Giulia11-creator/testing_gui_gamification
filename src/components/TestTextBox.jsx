@@ -63,7 +63,7 @@ const TestTextBox = () => {
 
       // BUG virgola: tronca la parte decimale (es: 9,6 -> 9)
       const hasCommaNow = expr.includes(",");
-      const cleanedInput = hasCommaNow ? expr.replace(/,\d+/g, "") : expr;
+      const cleanedInput = expr.replace(/(\d+),\d+/g, "$1");
 
       // salvo nello state per il click sul result (checkErrorComa)
       setHadComa(hasCommaNow);
@@ -85,7 +85,7 @@ const TestTextBox = () => {
       }
 
       // --- BUG 2: simboli speciali ---
-      if (/[#?&$£!]/.test(expr)) {
+      if (/[#?&$£!_]/.test(expr)) {
         setresult(null);
 
         if (!bugSymbols) {
@@ -120,7 +120,10 @@ const TestTextBox = () => {
         return;
       }
       const preparedInput = convertPowers(cleanedInput);
-      const res = eval(preparedInput);
+      let res = eval(preparedInput);
+      if (hasCommaNow) {
+        res = Math.floor(res);
+      }
 
       // --- BUG Infinity / NaN ---
       if (!Number.isFinite(res)) {
@@ -145,7 +148,9 @@ const TestTextBox = () => {
       setresult(res);
     } catch (error) {
       seterror(true);
-      seterrorMessage("Errore: non puoi fare questa azione" || "errore sconosciuto");
+      seterrorMessage(
+        "Errore: non puoi fare questa azione" || "errore sconosciuto",
+      );
       setresult(null);
     }
   };
@@ -187,7 +192,7 @@ const TestTextBox = () => {
             bugDecimal: bugDecimal,
             bugEmpty: bugEmpty,
             bugToInfinity: bugToInfinity,
-            bugSymbols: bugSymbols
+            bugSymbols: bugSymbols,
           },
         });
       }

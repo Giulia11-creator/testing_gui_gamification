@@ -11,6 +11,7 @@ export async function addUser(collectionName, uid, options = {}) {
       nick: options.email ?? "",
       score: Number(options.score ?? 0),
       time: options.time ?? "",
+      seconds: options.seconds ?? "",
       Totalclicks: Number(options.Totalclicks ?? 0),
       lastUpdate: serverTimestamp(),
 

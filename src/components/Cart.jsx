@@ -16,7 +16,7 @@ function parsePrice(str) {
   return Number.isFinite(val) ? val : 0;
 }
 
-const DURATION = 20 * 60;
+const DURATION = 10 * 60;
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -107,6 +107,7 @@ const Cart = () => {
           score,
           email: user.email,
           time: formatTime(),
+          seconds:elapsed,
           Totalclicks: clicks,
           bugs: {
             bugNoObject: sessionStorage.getItem("bugNoObject") === "true",

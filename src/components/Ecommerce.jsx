@@ -9,7 +9,7 @@ const Ecommerce = () => {
   const secondClickedDuringSleep = useRef(false);
   const isSleeping = useRef(false);
   const productToSave = useRef(null);
-  const DURATION = 20 * 60;
+  const DURATION = 10 * 60;
   const [seconds, setseconds] = useState(() => {
     const saved = sessionStorage.getItem("timer");
     return saved ? Number(saved) : DURATION;
@@ -145,6 +145,7 @@ const Ecommerce = () => {
           score,
           email: user.email,
           time: formatTime(),
+          seconds:elapsed,
           Totalclicks: clicks,
           bugs: {
             bugNoObject: bugNoObject,

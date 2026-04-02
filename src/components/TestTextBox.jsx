@@ -5,7 +5,7 @@ import { UserAuth } from "../context/AuthContext";
 import { FaUserCircle } from "react-icons/fa";
 import EndTimer from "./EndTimer.jsx";
 const TestTextBox = () => {
-  const DURATION = 20 * 60;
+  const DURATION = 10 * 60;
   const [seconds, setseconds] = useState(() => {
     const saved = sessionStorage.getItem("timer");
     return saved ? Number(saved) : DURATION;
@@ -186,6 +186,7 @@ const TestTextBox = () => {
           score,
           email: user.email,
           time: formatTime(),
+          seconds:elapsed,
           Totalclicks: clicks,
           bugs: {
             bugLetter: bugLetter,

@@ -281,6 +281,10 @@ function TodoList() {
     }
   };
 
+   function backToGame(){
+    incrementClicks();
+    navigate("/account");
+  }
  
 
   return (
@@ -357,7 +361,7 @@ function TodoList() {
               type="button"
               className="rounded-full p-1.5 bg-purple-200 hover:bg-purple-300 transition-colors"
               aria-label="Vai al profilo"
-              onClick={() => navigate("/account")}
+              onClick={backToGame}
             >
               <FaUserCircle className="text-purple-800 text-3xl" />
             </button>

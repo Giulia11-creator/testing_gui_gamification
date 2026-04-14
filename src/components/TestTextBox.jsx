@@ -239,6 +239,11 @@ const TestTextBox = () => {
     return str.replace(/(\d+(?:\.\d+)?)\s*\^\s*(\d+(?:\.\d+)?)/g, "$1**$2");
   }
 
+  function backToGame(){
+    incrementClicks();
+    navigate("/account");
+  }
+
 
 
   return (
@@ -318,7 +323,7 @@ const TestTextBox = () => {
               type="button"
               className="rounded-full p-1.5 bg-purple-200 hover:bg-purple-300 transition-colors"
               aria-label="Vai al profilo"
-              onClick={() => navigate("/account")}
+              onClick={backToGame}
             >
               <FaUserCircle className="text-purple-800 text-3xl" />
             </button>

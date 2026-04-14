@@ -290,6 +290,10 @@ const Ecommerce = () => {
     setbugWrongProduct(true);
   }
 
+   function backToGame(){
+    incrementClicks();
+    navigate("/account");
+  }
   return (
     <section className="min-h-screen bg-slate-50 text-slate-800 flex flex-col">
       {/* Topbar */}
@@ -364,7 +368,7 @@ const Ecommerce = () => {
               type="button"
               className="rounded-full p-1.5 bg-purple-200 hover:bg-purple-300 transition-colors"
               aria-label="Vai al profilo"
-              onClick={() => navigate("/account")}
+              onClick={backToGame}
             >
               <FaUserCircle className="text-purple-800 text-3xl" />
             </button>

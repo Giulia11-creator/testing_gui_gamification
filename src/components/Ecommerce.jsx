@@ -45,13 +45,6 @@ const Ecommerce = () => {
     return saved ? JSON.parse(saved) : 0;
   });
 
-  function incrementClicks() {
-    setClicks((prev) => {
-      const next = prev + 1;
-      sessionStorage.setItem("clicks", JSON.stringify(next));
-      return next; // importante restituire il nuovo valore
-    });
-  }
 
   useEffect(() => {
     if (seconds <= 0) {
@@ -130,6 +123,7 @@ const Ecommerce = () => {
     
     if (score === 100) {
       const timer = setTimeout(() => {
+        incrementClicks();
         setModalVisible(true);
       }, 4000); // 4 secondi
 
@@ -157,6 +151,34 @@ const Ecommerce = () => {
       }
     })();
   }, [score, user, formatTime, seconds, bugNoObject, bugWrongProduct, clicks]);
+
+  
+          function incrementClicks() {
+          setClicks((prev) => {
+            const next = prev + 1;
+            sessionStorage.setItem("clicks", JSON.stringify(next));
+            saveProgress(next); // salva solo quando cambiano i click
+            return next; // importante restituire il nuovo valore
+          });
+        }
+      
+          async function saveProgress(nextClicks) {
+          if (!user) return;
+        
+      await addUser("Ecommerce", user.uid, {
+          score,
+          email: user.email,
+          time: formatTime(),
+          seconds:elapsed,
+          Totalclicks:nextClicks,
+          bugs: {
+            bugNoObject: bugNoObject,
+            bugWrongProduct: bugWrongProduct,
+            bugWrongPrice: sessionStorage.getItem("bugWrongPrice") === "true",
+            bugFlaky: sessionStorage.getItem("bugFlaky") === "true",
+          },
+        });
+        }
 
   const handleFirstClick = (titleP, priceP, photoP) => {
     isSleeping.current = true;

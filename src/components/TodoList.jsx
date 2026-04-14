@@ -167,6 +167,7 @@ function TodoList() {
   useEffect(() => {
     if (score === 100) {
       const timer = setTimeout(() => {
+        incrementClicks();
         setshowModal(true);
       }, 4000); // 4 secondi
 
@@ -174,15 +175,26 @@ function TodoList() {
     }
   }, [score]);
 
-  useEffect(() => {
-    (async () => {
-      if (user) {
-        await addUser("Todo", user.uid, {
+ 
+
+        function incrementClicks() {
+        setClicks((prev) => {
+          const next = prev + 1;
+          sessionStorage.setItem("clicks", JSON.stringify(next));
+          saveProgress(next); // salva solo quando cambiano i click
+          return next; // importante restituire il nuovo valore
+        });
+      }
+    
+        async function saveProgress(nextClicks) {
+        if (!user) return;
+      
+    await addUser("Todo", user.uid, {
           score,
           email: user.email,
           time: formatTime(),
           seconds:elapsed,
-          Totalclicks: clicks,
+          Totalclicks: nextClicks,
           bugs: {
             bugDuplicateTodo: bugDuplicateTodo,
             bugEmptyColoumn: bugEmptyColoumn,
@@ -192,18 +204,6 @@ function TodoList() {
           },
         });
       }
-    })();
-  }, [
-    score,
-    user,
-    formatTime,
-    bugDuplicateTodo,
-    bugEmptyColoumn,
-    bugTooManyTasks,
-    bugWrongDate,
-    bugWrongText,
-    clicks,
-  ]);
 
   useEffect(() => {
     if (todos.length >= 7) {
@@ -281,13 +281,7 @@ function TodoList() {
     }
   };
 
-  function incrementClicks() {
-    setClicks((prev) => {
-      const next = prev + 1;
-      sessionStorage.setItem("clicks", JSON.stringify(next));
-      return next; // importante restituire il nuovo valore
-    });
-  }
+ 
 
   return (
     <div className="bg-slate-50 overflow-hidden min-h-screen flex flex-col">

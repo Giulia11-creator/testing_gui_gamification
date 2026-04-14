@@ -179,15 +179,26 @@ const TestTextBox = () => {
     setScore(currentScore);
   }, [bugLetter, bugSymbols, bugEmpty, bugDecimal, bugToInfinity]);
 
-  useEffect(() => {
-    (async () => {
-      if (user) {
-        await addUser("TextBox", user.uid, {
+
+  
+      function incrementClicks() {
+      setClicks((prev) => {
+        const next = prev + 1;
+        sessionStorage.setItem("clicks", JSON.stringify(next));
+        saveProgress(next); // salva solo quando cambiano i click
+        return next; // importante restituire il nuovo valore
+      });
+    }
+  
+      async function saveProgress(nextClicks) {
+      if (!user) return;
+    
+  await addUser("TextBox", user.uid, {
           score,
           email: user.email,
           time: formatTime(),
           seconds:elapsed,
-          Totalclicks: clicks,
+          Totalclicks:nextClicks,
           bugs: {
             bugLetter: bugLetter,
             bugDecimal: bugDecimal,
@@ -196,24 +207,12 @@ const TestTextBox = () => {
             bugSymbols: bugSymbols,
           },
         });
-      }
-    })();
-  }, [
-    score,
-    user,
-    formatTime,
-    seconds,
-    clicks,
-    bugDecimal,
-    bugEmpty,
-    bugLetter,
-    bugSymbols,
-    bugToInfinity,
-  ]);
+    }
 
   useEffect(() => {
     if (score === 100) {
       const timer = setTimeout(() => {
+        incrementClicks();
         setModalVisible(true);
       }, 4000); // 4 secondi
 
@@ -240,13 +239,7 @@ const TestTextBox = () => {
     return str.replace(/(\d+(?:\.\d+)?)\s*\^\s*(\d+(?:\.\d+)?)/g, "$1**$2");
   }
 
-  function incrementClicks() {
-    setClicks((prev) => {
-      const next = prev + 1;
-      sessionStorage.setItem("clicks", JSON.stringify(next));
-      return next; // importante restituire il nuovo valore
-    });
-  }
+
 
   return (
     <div className="bg-slate-50 min-h-screen flex flex-col">
@@ -363,6 +356,7 @@ const TestTextBox = () => {
                   <input
                     type="text"
                     value={input}
+                    onClick={incrementClicks}
                     onChange={(e) => {
                       setInput(e.target.value);
                       setresult(null);

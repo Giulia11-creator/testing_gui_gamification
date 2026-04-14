@@ -54,13 +54,6 @@ const Cart = () => {
     return saved ? JSON.parse(saved) : 0;
   });
 
-  function incrementClicks() {
-    setClicks((prev) => {
-      const next = prev + 1;
-      sessionStorage.setItem("clicks", JSON.stringify(next));
-      return next; // importante restituire il nuovo valore
-    });
-  }
 
   useEffect(() => {
     if (seconds <= 0) {
@@ -99,16 +92,24 @@ const Cart = () => {
     }
   };
 
-  // Persist/aggiorna punteggio su Firestore
-  useEffect(() => {
-    (async () => {
-      if (user) {
-        await addUser("Ecommerce", user.uid, {
+    function incrementClicks() {
+    setClicks((prev) => {
+      const next = prev + 1;
+      sessionStorage.setItem("clicks", JSON.stringify(next));
+      saveProgress(next); // salva solo quando cambiano i click
+      return next; // importante restituire il nuovo valore
+    });
+  }
+
+    async function saveProgress(nextClicks) {
+    if (!user) return;
+  
+ await addUser("Ecommerce", user.uid, {
           score,
           email: user.email,
           time: formatTime(),
           seconds:elapsed,
-          Totalclicks: clicks,
+          Totalclicks: nextClicks,
           bugs: {
             bugNoObject: sessionStorage.getItem("bugNoObject") === "true",
             bugWrongProduct: sessionStorage.getItem("bugWrongProduct") === "true",
@@ -116,9 +117,7 @@ const Cart = () => {
             bugFlaky: bugFlaky
           },
         });
-      }
-    })();
-  }, [score, user, formatTime, bugFlaky, bugWrongPrice, clicks]);
+  }
 
   // Incrementa score la prima volta che rileviamo bugFlaky
   useEffect(() => {

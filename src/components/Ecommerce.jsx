@@ -131,27 +131,6 @@ const Ecommerce = () => {
     }
   }, [score]);
 
-  // Salva score su Firestore
-  useEffect(() => {
-    (async () => {
-      if (user) {
-        await addUser("Ecommerce", user.uid, {
-          score,
-          email: user.email,
-          time: formatTime(),
-          seconds:elapsed,
-          Totalclicks: clicks,
-          bugs: {
-            bugNoObject: bugNoObject,
-            bugWrongProduct: bugWrongProduct,
-            bugWrongPrice: sessionStorage.getItem("bugWrongPrice") === "true",
-            bugFlaky: sessionStorage.getItem("bugFlaky") === "true",
-          },
-        });
-      }
-    })();
-  }, [score, user, formatTime, seconds, bugNoObject, bugWrongProduct, clicks]);
-
   
           function incrementClicks() {
           setClicks((prev) => {

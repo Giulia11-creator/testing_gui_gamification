@@ -4,12 +4,19 @@ import { addUser } from "./FirestoreFunction.js";
 import { UserAuth } from "../context/AuthContext";
 import { FaUserCircle } from "react-icons/fa";
 import EndTimer from "./EndTimer.jsx";
+import NoMoreClicksLeft from "./NoMoreClicksLeft.jsx";
+import { useEffectEvent } from "react";
 const TestTextBox = () => {
   const DURATION = 10 * 60;
   const [seconds, setseconds] = useState(() => {
     const saved = sessionStorage.getItem("timer");
     return saved ? Number(saved) : DURATION;
   });
+  const [clickBank, setClickBank] = useState(()=>{
+    const saved = sessionStorage.getItem("clickBank");
+    return saved ? JSON.parse(saved):500;
+  });
+  const [finishedClick, setFinishedClick] = useState(false);
   const [finishedTime, setFinishedTimer] = useState(false);
   const [input, setInput] = useState("");
   const [result, setresult] = useState(null);
@@ -30,21 +37,30 @@ const TestTextBox = () => {
     return saved ? JSON.parse(saved) : 0;
   });
 
-  useEffect(() => {
-    if (seconds <= 0) {
-      setFinishedTimer(true);
-      return;
-    }
+   useEffect(() => {
+     if (seconds <= 0) {
+       setFinishedTimer(true);
+       return;
+     }
+ 
+     const id = setInterval(() => {
+       setseconds((prev) => {
+         const next = prev - 1;
+         sessionStorage.setItem("timer", next);
+         return next;
+       });
+     }, 1000);
+     return () => clearInterval(id);
+   }, [seconds]);
 
-    const id = setInterval(() => {
-      setseconds((prev) => {
-        const next = prev - 1;
-        sessionStorage.setItem("timer", next);
-        return next;
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, [seconds]);
+    useEffect(() => {
+     if (clickBank <= 0) {
+       setFinishedClick(true);
+       return;
+     }
+   }, [clickBank]);
+
+  
 
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
@@ -185,8 +201,16 @@ const TestTextBox = () => {
       setClicks((prev) => {
         const next = prev + 1;
         sessionStorage.setItem("clicks", JSON.stringify(next));
+       
         saveProgress(next); // salva solo quando cambiano i click
         return next; // importante restituire il nuovo valore
+      });
+      setClickBank((prev)=> {
+        const next = prev - 1; 
+        sessionStorage.setItem("clickBank", JSON.stringify(clickBank))
+       // saveProgress(next); // salva solo quando cambiano i click
+        return next; // importante restituire il nuovo valore
+
       });
     }
   
@@ -292,6 +316,43 @@ const TestTextBox = () => {
                     seconds <= 30
                       ? "bg-red-500 animate-pulse"
                       : seconds <= 60
+                        ? "bg-amber-500"
+                        : "bg-emerald-500",
+                  ].join(" ")}
+                  aria-hidden
+                />
+              </div>
+               {/* ✅ clickBank BADGE */}
+              <div
+                className={[
+                  "inline-flex items-center gap-2 px-3 py-1.5 rounded-full font-semibold shadow-sm",
+                  "tabular-nums tracking-tight",
+                  clickBank <= 50
+                    ? "bg-red-100 text-red-700 ring-1 ring-red-200"
+                    : clickBank <= 100
+                      ? "bg-amber-100 text-amber-700 ring-1 ring-amber-200"
+                      : "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
+                  "ml-3 mt-1", // ✅ aggiunto
+                ].join(" ")}
+                aria-live="polite"
+                title="Tempo rimanente"
+              >
+                <span
+                  className="hidden sm:inline text-xs uppercase"
+                  onClick={incrementClicks}
+                >
+                  Click Bank
+                </span>
+                <span className="font-mono text-base" onClick={incrementClicks}>
+                 {clickBank}
+                </span>
+
+                <span
+                  className={[
+                    "ml-1 inline-block size-2 rounded-full",
+                    clickBank <= 50
+                      ? "bg-red-500 animate-pulse"
+                      : clickBank <= 100
                         ? "bg-amber-500"
                         : "bg-emerald-500",
                   ].join(" ")}
@@ -447,6 +508,7 @@ const TestTextBox = () => {
         </div>
       )}
       {finishedTime && <EndTimer />}
+      {finishedClick && <NoMoreClicksLeft/>}
     </div>
   );
 };

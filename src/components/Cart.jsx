@@ -4,6 +4,7 @@ import ProductCard from "./ProductCard";
 import { addUser } from "./FirestoreFunction.js";
 import { UserAuth } from "../context/AuthContext";
 import EndTimer from "./EndTimer.jsx";
+import NoMoreClicksLeft from "./NoMoreClicksLeft.jsx";
 
 // Util per i prezzi tipo "$1.699,00" -> 1699.00
 function parsePrice(str) {
@@ -34,6 +35,13 @@ const Cart = () => {
     return saved ? Number(saved) : DURATION;
   });
   const [finishedTime, setFinishedTimer] = useState(false);
+
+  
+  const [clickBank, setClickBank] = useState(() => {
+    const saved = sessionStorage.getItem("clickBank");
+    return saved ? JSON.parse(saved) : 500;
+  });
+  const [finishedClick, setFinishedClick] = useState(false);
 
   const [bugFlaky, setbugFlaky] = useState(() => {
     const saved = sessionStorage.getItem("bugFlaky");
@@ -71,6 +79,13 @@ const Cart = () => {
     return () => clearInterval(id);
   }, [seconds]);
 
+  useEffect(() => {
+    if (clickBank <= 0) {
+      setFinishedClick(true);
+      return;
+    }
+  }, [clickBank]);
+
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
   const elapsed = DURATION - seconds;
@@ -92,31 +107,39 @@ const Cart = () => {
     }
   };
 
-    function incrementClicks() {
+  function incrementClicks() {
     setClicks((prev) => {
       const next = prev + 1;
       sessionStorage.setItem("clicks", JSON.stringify(next));
+
       saveProgress(next); // salva solo quando cambiano i click
       return next; // importante restituire il nuovo valore
     });
+    setClickBank((prev) => {
+      const next = prev - 1;
+      sessionStorage.setItem("clickBank", JSON.stringify(clickBank))
+     // saveProgress(next); // salva solo quando cambiano i click
+      return next; // importante restituire il nuovo valore
+
+    });
   }
 
-    async function saveProgress(nextClicks) {
+  async function saveProgress(nextClicks) {
     if (!user) return;
-  
- await addUser("Ecommerce", user.uid, {
-          score,
-          email: user.email,
-          time: formatTime(),
-          seconds:elapsed,
-          Totalclicks: nextClicks,
-          bugs: {
-            bugNoObject: sessionStorage.getItem("bugNoObject") === "true",
-            bugWrongProduct: sessionStorage.getItem("bugWrongProduct") === "true",
-            bugWrongPrice: bugWrongPrice,
-            bugFlaky: bugFlaky
-          },
-        });
+
+    await addUser("Ecommerce", user.uid, {
+      score,
+      email: user.email,
+      time: formatTime(),
+      seconds: elapsed,
+      Totalclicks: nextClicks,
+      bugs: {
+        bugNoObject: sessionStorage.getItem("bugNoObject") === "true",
+        bugWrongProduct: sessionStorage.getItem("bugWrongProduct") === "true",
+        bugWrongPrice: bugWrongPrice,
+        bugFlaky: bugFlaky
+      },
+    });
   }
 
   // Incrementa score la prima volta che rileviamo bugFlaky
@@ -144,9 +167,9 @@ const Cart = () => {
     sessionStorage.setItem("scoreSetForbugWrongPrice", "true");
     seterrormessage(
       "⚡ Ottimo lavoro! Hai scoperto un bug nel prezzo — un errore di inconsistenza dei dati (data inconsistency). " +
-        "In questa situazione l’app mostra un prezzo diverso da quello corretto. " +
-        "Di solito succede quando il prezzo viene trasformato male (per esempio separatori come '.' e ','), " +
-        "Un bug di inconsistenza dei dati si verifica quando lo stesso dato viene memorizzato o mostrato in modo diverso in punti diversi del sistema." 
+      "In questa situazione l’app mostra un prezzo diverso da quello corretto. " +
+      "Di solito succede quando il prezzo viene trasformato male (per esempio separatori come '.' e ','), " +
+      "Un bug di inconsistenza dei dati si verifica quando lo stesso dato viene memorizzato o mostrato in modo diverso in punti diversi del sistema."
     );
     setdisplay(true);
   }, [bugWrongPrice]);
@@ -216,6 +239,43 @@ const Cart = () => {
                   seconds <= 30
                     ? "bg-red-500 animate-pulse"
                     : seconds <= 60
+                      ? "bg-amber-500"
+                      : "bg-emerald-500",
+                ].join(" ")}
+                aria-hidden
+              />
+            </div>
+              {/* ✅ clickBank BADGE */}
+            <div
+              className={[
+                "inline-flex items-center gap-2 px-3 py-1.5 rounded-full font-semibold shadow-sm",
+                "tabular-nums tracking-tight",
+                clickBank <= 50
+                  ? "bg-red-100 text-red-700 ring-1 ring-red-200"
+                  : clickBank <= 100
+                    ? "bg-amber-100 text-amber-700 ring-1 ring-amber-200"
+                    : "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
+                "ml-3 mt-1", // ✅ aggiunto
+              ].join(" ")}
+              aria-live="polite"
+              title="Tempo rimanente"
+            >
+              <span
+                className="hidden sm:inline text-xs uppercase"
+                onClick={incrementClicks}
+              >
+                Click Bank
+              </span>
+              <span className="font-mono text-base" onClick={incrementClicks}>
+                {clickBank}
+              </span>
+
+              <span
+                className={[
+                  "ml-1 inline-block size-2 rounded-full",
+                  clickBank <= 50
+                    ? "bg-red-500 animate-pulse"
+                    : clickBank <= 100
                       ? "bg-amber-500"
                       : "bg-emerald-500",
                 ].join(" ")}
@@ -353,6 +413,8 @@ const Cart = () => {
           </div>
         </div>
         {finishedTime && <EndTimer />}
+        {finishedClick && <NoMoreClicksLeft />}
+
       </div>
     </section>
   );

@@ -5,9 +5,14 @@ import { FaUserCircle } from "react-icons/fa";
 import { addUser } from "./FirestoreFunction.js";
 import EndTimer from "./EndTimer.jsx";
 import { useRef } from "react";
+import NoMoreClicksLeft from "./NoMoreClicksLeft.jsx";
 
 function TodoList() {
   const nextId = useRef(0);
+  const [clickBank, setClickBank] = useState(() => {
+    const saved = sessionStorage.getItem("clickBank");
+    return saved ? JSON.parse(saved) : 500;
+  });
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState("");
   const [oldText, setOldText] = useState("");
@@ -33,7 +38,10 @@ function TodoList() {
     const saved = sessionStorage.getItem("clicks");
     return saved ? JSON.parse(saved) : 0;
   });
+
   const [finishedTime, setFinishedTimer] = useState(false);
+    const [finishedClick, setFinishedClick] = useState(false);
+
   useEffect(() => {
     if (seconds <= 0) {
       setFinishedTimer(true);
@@ -49,6 +57,13 @@ function TodoList() {
     }, 1000);
     return () => clearInterval(id);
   }, [seconds]);
+
+  useEffect(() => {
+    if (clickBank <= 0) {
+      setFinishedClick(true);
+      return;
+    }
+  }, [clickBank]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -111,7 +126,7 @@ function TodoList() {
       setbugEmptyColoumn(true);
     } else {
       setTodos([]);
-      nextId.current=0;
+      nextId.current = 0;
     }
   };
 
@@ -175,35 +190,43 @@ function TodoList() {
     }
   }, [score]);
 
- 
 
-        function incrementClicks() {
-        setClicks((prev) => {
-          const next = prev + 1;
-          sessionStorage.setItem("clicks", JSON.stringify(next));
-          saveProgress(next); // salva solo quando cambiano i click
-          return next; // importante restituire il nuovo valore
-        });
-      }
-    
-        async function saveProgress(nextClicks) {
-        if (!user) return;
-      
+
+  function incrementClicks() {
+    setClicks((prev) => {
+      const next = prev + 1;
+      sessionStorage.setItem("clicks", JSON.stringify(next));
+
+      saveProgress(next); // salva solo quando cambiano i click
+      return next; // importante restituire il nuovo valore
+    });
+    setClickBank((prev) => {
+      const next = prev - 1;
+      sessionStorage.setItem("clickBank", JSON.stringify(clickBank))
+     // saveProgress(next); // salva solo quando cambiano i click
+      return next; // importante restituire il nuovo valore
+
+    });
+  }
+
+  async function saveProgress(nextClicks) {
+    if (!user) return;
+
     await addUser("Todo", user.uid, {
-          score,
-          email: user.email,
-          time: formatTime(),
-          seconds:elapsed,
-          Totalclicks: nextClicks,
-          bugs: {
-            bugDuplicateTodo: bugDuplicateTodo,
-            bugEmptyColoumn: bugEmptyColoumn,
-            bugTooManyTasks: bugTooManyTasks,
-            bugWrongDate: bugWrongDate,
-            bugWrongText: bugWrongText
-          },
-        });
-      }
+      score,
+      email: user.email,
+      time: formatTime(),
+      seconds: elapsed,
+      Totalclicks: nextClicks,
+      bugs: {
+        bugDuplicateTodo: bugDuplicateTodo,
+        bugEmptyColoumn: bugEmptyColoumn,
+        bugTooManyTasks: bugTooManyTasks,
+        bugWrongDate: bugWrongDate,
+        bugWrongText: bugWrongText
+      },
+    });
+  }
 
   useEffect(() => {
     if (todos.length >= 7) {
@@ -281,11 +304,11 @@ function TodoList() {
     }
   };
 
-   function backToGame(){
+  function backToGame() {
     incrementClicks();
     navigate("/account");
   }
- 
+
 
   return (
     <div className="bg-slate-50 overflow-hidden min-h-screen flex flex-col">
@@ -337,6 +360,44 @@ function TodoList() {
                 aria-hidden
               />
             </div>
+             {/* ✅ clickBank BADGE */}
+              <div
+                className={[
+                  "inline-flex items-center gap-2 px-3 py-1.5 rounded-full font-semibold shadow-sm",
+                  "tabular-nums tracking-tight",
+                  clickBank <= 50
+                    ? "bg-red-100 text-red-700 ring-1 ring-red-200"
+                    : clickBank <= 100
+                      ? "bg-amber-100 text-amber-700 ring-1 ring-amber-200"
+                      : "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
+                  "ml-3 mt-1", // ✅ aggiunto
+                ].join(" ")}
+                aria-live="polite"
+                title="Tempo rimanente"
+              >
+                <span
+                  className="hidden sm:inline text-xs uppercase"
+                  onClick={incrementClicks}
+                >
+                  Click Bank
+                </span>
+                <span className="font-mono text-base" onClick={incrementClicks}>
+                  {clickBank}
+                </span>
+
+                <span
+                  className={[
+                    "ml-1 inline-block size-2 rounded-full",
+                    clickBank <= 50
+                      ? "bg-red-500 animate-pulse"
+                      : clickBank <= 100
+                        ? "bg-amber-500"
+                        : "bg-emerald-500",
+                  ].join(" ")}
+                  aria-hidden
+                />
+              </div>
+
           </span>
 
           {/* Destra: chip punteggio + icona account */}
@@ -389,7 +450,7 @@ function TodoList() {
         </div>
       )}
       {finishedTime && <EndTimer />}
-
+       {finishedClick && <NoMoreClicksLeft />}
       {/* Contenuto */}
       <div className="flex-grow">
         <div className="max-w-[1200px] mx-auto px-5 py-8">
@@ -436,41 +497,41 @@ function TodoList() {
               <div className="space-y-2 flex-1 overflow-y-auto">
                 {todos.length > 0 && todos.length < 7
                   ? todos.map((todo, index) => (
-                      <div
-                        key={index}
-                        className="group bg-slate-100/80 hover:bg-slate-100 transition-colors p-3 rounded-xl flex items-center gap-3 shadow-sm"
+                    <div
+                      key={index}
+                      className="group bg-slate-100/80 hover:bg-slate-100 transition-colors p-3 rounded-xl flex items-center gap-3 shadow-sm"
+                    >
+                      <span
+                        className="flex-1 text-slate-800"
+                        onClick={() => CheckTodo(todo)}
                       >
-                        <span
-                          className="flex-1 text-slate-800"
-                          onClick={() => CheckTodo(todo)}
-                        >
-                          {todo.text}
-                        </span>
+                        {todo.text}
+                      </span>
 
-                        <button
-                          className="text-xs text-slate-500 hover:text-purple-700 bg-white border border-slate-200 rounded-lg px-2 py-1 transition"
-                          onClick={() => HandleClickDate(todo)}
-                          title="Data scadenza"
-                        >
-                          {todo.dueDate
-                            ? new Date(todo.dueDate).toLocaleDateString()
-                            : "Data"}
-                        </button>
+                      <button
+                        className="text-xs text-slate-500 hover:text-purple-700 bg-white border border-slate-200 rounded-lg px-2 py-1 transition"
+                        onClick={() => HandleClickDate(todo)}
+                        title="Data scadenza"
+                      >
+                        {todo.dueDate
+                          ? new Date(todo.dueDate).toLocaleDateString()
+                          : "Data"}
+                      </button>
 
-                        <button
-                          onClick={() => removeTodo(index)}
-                          className="shrink-0 inline-flex items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 px-2 py-1 text-sm transition"
-                          aria-label="Rimuovi task"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))
+                      <button
+                        onClick={() => removeTodo(index)}
+                        className="shrink-0 inline-flex items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 px-2 py-1 text-sm transition"
+                        aria-label="Rimuovi task"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))
                   : ShowEmoji && (
-                      <div className="text-2xl mt-2 leading-6 break-words">
-                        {"😱".repeat(300)}
-                      </div>
-                    )}
+                    <div className="text-2xl mt-2 leading-6 break-words">
+                      {"😱".repeat(300)}
+                    </div>
+                  )}
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-2">
